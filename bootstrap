@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ "$PWD" != "${HOME}/.local/dotfiles" ]; then
+	echo "Not running from within the right directory!"
+	exit 1;
+else
+	echo "Bootstrapping to ${HOME}/.local/dotfiles..."
+fi
+echo
+
+DOTFILES="${HOME}/.local/dotfiles"
+
+if [ -e "${HOME}/.local/bin" ]; then
+	echo "${HOME}/.local/bin exists! Backing up..."
+	mv "${HOME}/.local/bin" "${HOME}/.local/bin.bckp"
+fi
+
+echo "Symlinking ~/.local/bin..."
+ln -sT "${DOTFILES}/bin" "${HOME}/.local/bin"
+echo
+
+echo "Adding rcfiles..."
+for file in $(find "${DOTFILES}/rcfiles/" -type f); do
+	BASENAME=$(basename ${file})
+	if [ -e "${HOME}/${BASENAME}" ]; then
+		echo "    ${BASENAME} already exists! Not doing anything."
+		echo "    To fix this, backup your file and run: "
+		echo "    ln -sT ${file} ${HOME}/${BASENAME}"
+	else
+		echo "    Linking in ${BASENAME}..."
+		ln -sT "${file}" "${HOME}/${BASENAME}"
+	fi
+	echo
+done
+
+echo "All done! Relog to see changes."
