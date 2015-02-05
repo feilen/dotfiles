@@ -1,0 +1,4 @@
+#!/bin/sh
+xrandr --output DVI-I-3 --off --output HDMI-0 --off
+xrandr --output HDMI-0 --primary --rotate left --mode 1080x1920 --rate 60 --auto --output DVI-I-2 --mode 1920x1080 --rate 60 --auto --same-as HDMI-0 --panning 1920x1080 --scale 1x1
+dispwin -d1 /home/feilen/.config/asus_vh222t.icm

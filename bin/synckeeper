@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+
+while [ 1 ]; do
+
+    # Pull info from xdotool
+    eval $(xdotool getactivewindow getwindowgeometry --shell) 
+    
+    # Active and fullscreen, disable and refocus window. Not active and not fullscreen, enable and refocus
+    # window. Otherwise do nothing.   
+    if [ "$(xdotool getdisplaygeometry)" = "$WIDTH $HEIGHT" ]; then
+        if [ "$(xfconf-query -c xfwm4 -p /general/use_compositing)" = "true" ]; then
+            xfconf-query -c xfwm4 -p /general/use_compositing -s false
+            sleep 0.15
+            xdotool windowactivate $WINDOW
+        fi
+    else 
+        if [ "$(xfconf-query -c xfwm4 -p /general/use_compositing)" = "false" ]; then
+            xfconf-query -c xfwm4 -p /general/use_compositing -s true
+            sleep 0.15
+            xdotool windowactivate $WINDOW
+        fi
+    fi
+    sleep 1
+done

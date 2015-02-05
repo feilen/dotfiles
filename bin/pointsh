@@ -1,0 +1,13 @@
+#!/bin/bash
+
+case "$1" in
+	bash)
+		sudo ln -sfT /usr/bin/bash /usr/bin/sh
+		;;
+	dash)
+		sudo ln -sfT /usr/bin/dash /usr/bin/sh
+		;;
+	*)
+		echo "Usage: $0 (bash|dash)"
+		;;
+esac

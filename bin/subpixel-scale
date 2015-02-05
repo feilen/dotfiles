@@ -1,0 +1,14 @@
+#!/bin/sh
+
+OUTPUT_W=1920
+OUTPUT_H=1080
+
+convert "${1}" +repage \
+-colorspace LAB -filter lanczos -distort Resize $((3 * $OUTPUT_W ))x${OUTPUT_H}\! \
+-colorspace sRGB \
+-channel R -morphology Convolve '3x1: 0, 0, 1' \
+-channel G -morphology Convolve '3x1: 0, 1, 0' \
+-channel B -morphology Convolve '3x1: 1, 0, 0' \
++channel -sample ${OUTPUT_W}x${OUTPUT_H}\! \
+-colorspace sRGB "_${1}.png"
+

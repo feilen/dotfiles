@@ -1,0 +1,3 @@
+#!/bin/sh
+xrandr --output HDMI-0 --off --output DVI-I-3 --off
+xrandr --output HDMI-0 --primary --mode 1080x1920 --rotate normal --rate 75 --auto --output DVI-I-2 --off --output DVI-I-3 --off

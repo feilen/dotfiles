@@ -1,0 +1,145 @@
+#!/bin/bash
+##########################################
+#     Personal syncronization script.    #
+##########################################
+
+SYNCOUTPUTDIR=/hdd/feilen/Backups
+GAMEFILES=( '.Aquaria/' \
+'.BlocksThatMatterUserDatas/' \
+'.codered/' \
+'.CrayonPhysicsDeluxe/' \
+'.darwinia/' \
+'.dolphin-emu/' \
+'.frictionalgames/' \
+'.gaijin_games/' \
+'.gish/' \
+'.killingfloor/' \
+'.minecraft/' \
+'.nexuiz/' \
+'.nightsky-game/' \
+'.polynomial/' \
+'.SupergiantGames/' \
+'.xonotic/' )
+
+PERSONALFILES=( '.android/' \
+'.audacity-data/' \
+'.avidemux/' \
+'.bash_logout' \
+'.bash_profile' \
+'.bashrc' \
+'.blender/' \
+'.compose-cache/' \
+'.config/' \
+'.dbus/' \
+'.eclipse/' \
+'.esd_auth' \
+'.fltk/' \
+'.gitconfig' \
+'.gnupg/' \
+'.gstreamer-0.10/' \
+'.icons/' \
+'.irssi/' \
+'.java/' \
+'.kderc' \
+'.libreoffice/' \
+'.local/ --exclude=.local/share/Steam' \
+'.mplayer/' \
+'.mypaint/' \
+'.nanorc' \
+'.nv/' \
+'.nvidia-settings-rc' \
+'.purple/' \
+'.python-eggs/' \
+'.replicatorg/' \
+'.ssh/' \
+'.tor/' \
+'.vidalia/' \
+'.xchat2/' \
+'.xinitrc' \
+'.intel-licence.lic' )
+
+case $1 in
+	fast)
+		ROOTDIR=$(echo $2|sed 's/.*\///g')
+		echo "Please enter a password:"
+		read password
+		echo "Compressing $ROOTDIR with lzop and encrypting, please wait..."
+		tar -cf - -C $2 .|pv -s $(du -sbc $2|sed '/total$/!d;s/[\ta-z]*//g')| lzop -1 -c -|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/${ROOTDIR}.tar.lzop.aes256
+		;;
+	small)
+		ROOTDIR=$(echo $2|sed 's/.*\///g')
+		echo "Please enter a password:"
+		read password
+		echo "Compressing $ROOTDIR with xz and encrypting, please wait..."
+		tar -cf - -C $2 .|pv -s $(du -sbc $2|sed '/total$/!d;s/[\ta-z]*//g')| xz -9|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/${ROOTDIR}.tar.xz.aes256
+		;;
+	dotfiles)
+		echo "Please enter a password:"
+		read password
+		echo "Compressing dotfiles and encrypting, please wait..."
+		bleachbit -c --preset >/dev/null 2>&1
+		tar -cf - -C /home/feilen ${PERSONALFILES[@]} ${GAMEFILES[@]} |xz -9e|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/dotfiles.tar.xz.aes256
+		;;
+	uplink)
+		echo "Attempting uplink..."
+		case $2 in
+			documents)
+				DATA='Documents/'
+				ARGS='-rvz --delete'
+				;;
+			pictures)
+				DATA='Pictures/'
+				ARGS='-rvz --delete --size-only'
+				;;
+			music)
+				DATA='Music/'
+				ARGS='-rvz --delete --size-only'
+				;;
+			video)
+				DATA='Video/'
+				ARGS='-rvz --delete --size-only'
+				;;
+			objects)
+				DATA='Objects/'
+				ARGS='-rvz --delete --size-only'
+				;;
+			dotfiles)
+				DATA=( "${PERSONALFILES[@]}" )
+				ARGS='-rvz --delete'
+				;;
+			games)
+				DATA=( "${GAMEFILES[@]}" )
+				ARGS='-rvz --delete'
+				;;
+			source)
+				DATA='Source/'
+				ARGS='-rvz --delete'
+				;;
+			*)
+				echo "Usage: $0 uplink (dotfiles|documents|games|pictures|music|video|objects|source) (push|pull) [HOST]"
+				exit 1
+				;;
+		esac
+		case $3 in
+			push)
+				for file in "${DATA[@]}"; do
+					rsync $ARGS /home/feilen/"${file}" "${4}":/home/feilen/"${file}"
+				done
+				;;
+			pull)
+				for file in "${DATA[@]}"; do
+					rsync $ARGS "${4}":/home/feilen/"${file}" /home/feilen/"${file}"
+				done
+				;;
+			*)
+				echo "Usage: $0 uplink (dotfiles|documents|games|pictures|music|video|objects|source) (push|pull) [HOST]"
+                                exit 1
+                                ;;
+		esac
+		;;
+	*)
+		echo "Usage: $0 (fast|small) [DIRECTORY]"
+		echo "       $0 uplink (dotfiles|documents|games|pictures|music|video|objects|source) (push|pull) [HOST]"
+		echo "       $0 dotfiles"
+		;;
+esac
