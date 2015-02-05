@@ -13,17 +13,48 @@ compinit
 
 . ${HOME}/.profile
 
+#------------------------------
+# Prompt
+#------------------------------
+
 autoload -U promptinit
 promptinit
 prompt adam2
 
+#------------------------------
+# Window title
+#------------------------------
+case $TERM in
+  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term)
+    precmd () {
+      #vcs_info
+      print -Pn "\e]0;[%n@%M][%~]%#\a"
+    } 
+    preexec () { print -Pn "\e]0;[%n@%M][%~]%# ($1)\a" }
+    ;;
+  screen|screen-256color)
+    precmd () { 
+      #vcs_info
+      print -Pn "\e]83;title \"$1\"\a" 
+      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a" 
+    }
+    preexec () { 
+      print -Pn "\e]83;title \"$1\"\a" 
+      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a" 
+    }
+    ;; 
+esac
+
+
 alias ls='ls --color=auto -tr'
+alias ghc='ghc -O1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
-alias postinstall='sudo bleachbit -c --preset;sudo prelink -amR -C /var/cache/prelink.cache; sudo btrfs filesystem defrag /; sudo fstrim -v /'
+alias postinstall='sudo bleachbit -c --preset;sudo prelink -amR -C /var/cache/prelink.cache;sudo btrfs filesystem defrag /;sudo btrfs filesystem defrag /home; sudo fstrim -v /'
 alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
 alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
 alias nicewine='schedtool -n 1 $(allthreads "C:/Program Files/Steam/Steam.exe")'
+alias wololo='ssh media@htpc wol 00:24:1d:8c:76:c2'
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo

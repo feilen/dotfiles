@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # ~/.xinitrc
 #
@@ -17,15 +17,12 @@ fi
 #Keyboard
 setxkbmap us -variant colemak
 
-#Audio
-pulseaudio --start
-
 #Screen
-xrandunrift
-nvidia-settings -l
-synckeeper &
+if [ "$HOST" == "MAWnster" ]; then
+	xrandunrift
+	nvidia-settings -l
+	synckeeper &
+fi
 
 #Begin
-
-#exec wmfs
 exec startxfce4
