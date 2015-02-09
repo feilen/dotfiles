@@ -16,6 +16,7 @@ parser.add_argument('-u', '--unsharpafter', default=-1, type=int, help='apply un
 parser.add_argument('--nogamma', action='store_true', help='don\'t apply gamma correction to scaling')
 parser.add_argument('--extargs', metavar='argument', default='', help='extra arguments to supply to convert after each imgname')
 parser.add_argument('--nomips', action='store_true', help='do not generate mipmaps')
+parser.add_argument('--colorspace', metavar='argument', default='RGB', help='colorspace to resize in')
 
 arguments = parser.parse_args()
 maximgsize = arguments.size
@@ -35,7 +36,7 @@ for image in arguments.filename:
     for s in reversed(range(int(math.log(maximgsize, 2)+1)) if not arguments.nomips else range(int(math.log(maximgsize, 2)), int(math.log(maximgsize, 2)+1)) ):
         command += '\( %(image)s +repage %(extargs)s ' % { "image": image, "extargs": arguments.extargs }
         if not arguments.nogamma: 
-            command += '-colorspace LAB '            
+            command += '-colorspace ' + arguments.colorspace + ' '            
         command += '-filter ' + arguments.filter + ' -background Transparent -interpolate catrom '
         command += '-virtual-pixel Transparent -gravity Center '
         command += '-distort Resize ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' -extent ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' '
