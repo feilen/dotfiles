@@ -22,6 +22,8 @@ if [ "$HOST" == "MAWnster" ]; then
 	xrandunrift
 	nvidia-settings -l
 	synckeeper &
+else
+	syndaemon -i .5 -K -t -R -d
 fi
 
 #Begin
