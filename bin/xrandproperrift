@@ -1,2 +1,7 @@
 #!/bin/sh
 xrandr --output HDMI-0 --primary --mode 1080x1920 --rotate normal --rate 75 --auto --output DVI-I-2 --mode 1152x864 --rate 75 --auto --rotate right --panning 864x1152 --same-as HDMI-0
+if [ "$#" -ne 0 ]; then
+    sleep 3
+    "$@"
+    xrandunrift
+fi
