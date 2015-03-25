@@ -37,10 +37,10 @@ for image in arguments.filename:
         command += '\( %(image)s +repage %(extargs)s ' % { "image": image, "extargs": arguments.extargs }
         if not arguments.nogamma: 
             command += '-colorspace ' + arguments.colorspace + ' '            
-        command += '-filter ' + arguments.filter + ' -background Transparent -interpolate catrom '
-        command += '-virtual-pixel Transparent -gravity Center '
-        command += '-set option:distort:viewport "%[fx:max(w,h)]x%[fx:max(w,h)]-%[fx:max((h-w)/2,0)]-%[fx:max((w-h)/2,0)]" -distort SRT 0 +repage '
-        command += '-distort resize ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' -extent ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' '
+        command += '-background Transparent -virtual-pixel Transparent '
+        command += '-set option:distort:viewport "%[fx:max(w,h)]x%[fx:max(w,h)]-%[fx:max((h-w)/2,0)]-%[fx:max((w-h)/2,0)]" -filter Point -distort SRT 0 +repage '
+        command += '-filter ' + arguments.filter + ' -interpolate catrom -gravity Center '
+        command += '+distort resize ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' -extent ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' '
         if (arguments.unsharpafter >= 0):
             if (unsharp > arguments.unsharpafter):
                 command += '-unsharp 0x0.785398+0.7071+0 '
