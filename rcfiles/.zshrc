@@ -53,8 +53,9 @@ alias asdf='setxkbmap us -variant colemak'
 alias postinstall='sudo bleachbit -c --preset;sudo prelink -amR -C /var/cache/prelink.cache;sudo btrfs filesystem defrag /;sudo btrfs filesystem defrag /home; sudo fstrim -v /'
 alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
 alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
+alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
 alias nicewine='schedtool -n 1 $(allthreads "C:/Program Files/Steam/Steam.exe")'
-alias wololo='ssh media@htpc wol 00:24:1d:8c:76:c2'
+alias wololo='ssh media@htpc wol d0:50:99:37:f3:1d'
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
