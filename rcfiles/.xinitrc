@@ -18,7 +18,7 @@ fi
 setxkbmap us -variant colemak
 
 #Screen
-if [ "$HOST" == "MAWnster" ]; then
+if [ "$HOST" != "Yarnball" ]; then
 	xrandunrift
 	nvidia-settings -l
 	synckeeper &
