@@ -31,12 +31,12 @@ gimpcmd += "           (gimp-image-delete image)))\n"
 
 for image in arguments.filename:
     basefilename = re.sub('\..*\Z', '', image)
-    command = 'convert -size ' + str(maximgsize) + 'x' + str(maximgsize) + ' xc:blue \\\n' if arguments.dds else 'convert '
+    command = 'convert ' + image + ' -size ' + str(maximgsize) + 'x' + str(maximgsize) + ' xc:blue \\\n' if arguments.dds else 'convert ' + image + ' '
     unsharp = 1
     for s in reversed(range(int(math.log(maximgsize, 2)+1)) if not arguments.nomips else range(int(math.log(maximgsize, 2)), int(math.log(maximgsize, 2)+1)) ):
-        command += '\( %(image)s +repage %(extargs)s ' % { "image": image, "extargs": arguments.extargs }
+        command += '\( -clone 0 +repage ' + arguments.extargs + ' '
         if not arguments.nogamma: 
-            command += '-colorspace ' + arguments.colorspace + ' '            
+            command += '-colorspace ' + arguments.colorspace + ' '
         command += '-background Transparent -virtual-pixel Transparent '
         command += '-set option:distort:viewport "%[fx:max(w,h)]x%[fx:max(w,h)]-%[fx:max((h-w)/2,0)]-%[fx:max((w-h)/2,0)]" -filter Point -distort SRT 0 +repage '
         command += '-filter ' + arguments.filter + ' -interpolate catrom -gravity Center '
@@ -44,10 +44,12 @@ for image in arguments.filename:
         if (arguments.unsharpafter >= 0):
             if (unsharp > arguments.unsharpafter):
                 command += '-unsharp 0x0.785398+0.7071+0 '
-            unsharp += 1            
+            unsharp += 1
         if not arguments.nogamma:
             command += '-colorspace sRGB '
         command += '\) \\\n'
+
+    command += '-delete 0 '
 
     if arguments.dds:
         command += '-gravity NorthWest  ' + basefilename + '.psd' 
