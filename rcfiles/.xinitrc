@@ -27,4 +27,4 @@ else
 fi
 
 #Begin
-exec startxfce4
+exec startlxde
