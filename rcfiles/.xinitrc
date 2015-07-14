@@ -18,13 +18,16 @@ fi
 setxkbmap us -variant colemak
 
 #Screen
-if [ "$HOST" != "Yarnball" ]; then
+if [ "$(cat /etc/hostname)" == "MAWnster" ]; then
 	xrandunrift
 	nvidia-settings -l
-	synckeeper &
+	#synckeeper &
 else
 	syndaemon -i .5 -K -t -R -d
 fi
 
 #Begin
-exec startxfce4
+#exec startxfce4
+#exec xterm
+
+exec startlxde
