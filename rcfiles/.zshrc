@@ -94,6 +94,6 @@ function zle-line-finish () {
 }
 #zle -N zle-line-init
 #zle -N zle-line-finish  
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ${HOME}/.local/dotfiles/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log
