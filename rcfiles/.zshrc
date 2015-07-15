@@ -1,12 +1,10 @@
 # TMUX
 if which tmux >/dev/null 2>&1; then
-    # if no session is started, start a new session
-    test -z ${TMUX} && exec tmux
-
-    # when quitting tmux, try to attach
-    #while test -z ${TMUX}; do
-    #    exec tmux attach || break
-    #done
+    #if not inside a tmux session, and if no session is started, start a new session
+    if test -z "$TMUX"; then
+         (tmux attach || tmux new-session)
+         exit $?
+    fi
 fi
 
 # Lines configured by zsh-newuser-install
