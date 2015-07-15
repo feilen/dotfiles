@@ -46,7 +46,7 @@ case $TERM in
 esac
 
 
-alias ls='ls --color=auto -tr'
+alias ls='ls --color=auto -tr1'
 alias ghc='ghc -O1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
