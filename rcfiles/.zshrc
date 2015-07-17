@@ -1,9 +1,11 @@
 # TMUX
 if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
-    if test -z "$TMUX"; then
-         (tmux attach || tmux new-session)
-         exit $?
+    if [ ! -z $DISPLAY ] || [[ "$XDG_VNTR" != "1" ]]; then
+         if [ -z "$TMUX" ]; then
+             (tmux attach || tmux new-session)
+             exit $?
+         fi
     fi
 fi
 
