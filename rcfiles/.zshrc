@@ -3,7 +3,7 @@ if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
     if [ ! -z $DISPLAY ] || [[ "$XDG_VNTR" != "1" ]]; then
          if [ -z "$TMUX" ]; then
-             (tmux attach || tmux new-session)
+             (tmux -2 attach || tmux -2 new-session)
              exit $?
          fi
     fi
@@ -17,6 +17,8 @@ bindkey -e
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
 zstyle :compinstall filename '/home/feilen/.zshrc'
+# Automatically find new executables
+zstyle ':completion:*' rehash true
 
 autoload -Uz compinit
 compinit
@@ -30,7 +32,7 @@ compinit
 
 autoload -U promptinit
 promptinit
-prompt adam2
+prompt adam2 8bit 236 201 201
 
 #------------------------------
 # Window title
@@ -58,15 +60,13 @@ esac
 
 
 alias ls='ls --color=auto -tr1'
-alias ghc='ghc -O1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
+alias nano='vim'
 alias postinstall='sudo bleachbit -c --preset;sudo prelink -amR -C /var/cache/prelink.cache'
 alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
 alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
 alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
-alias nicewine='schedtool -n 1 $(allthreads "C:/Program Files/Steam/Steam.exe")'
-alias wololo='ssh media@htpc wol d0:50:99:37:f3:1d'
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
