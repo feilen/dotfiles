@@ -1,3 +1,14 @@
+# TMUX
+if which tmux >/dev/null 2>&1; then
+    #if not inside a tmux session, and if no session is started, start a new session
+    if [ ! -z $DISPLAY ] || [[ "$XDG_VNTR" != "1" ]]; then
+         if [ -z "$TMUX" ]; then
+             (tmux attach || tmux new-session)
+             exit $?
+         fi
+    fi
+fi
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=1024
@@ -46,7 +57,7 @@ case $TERM in
 esac
 
 
-alias ls='ls --color=auto -tr'
+alias ls='ls --color=auto -tr1'
 alias ghc='ghc -O1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
