@@ -9,9 +9,9 @@ SDL_AUDIO=pulse \
 SDL_AUDIODRIVER=pulse \
 PATH=${HOME}/.local/bin:${HOME}/.local/dotfiles/riftutilities:${PATH} \
 WINEPREFIX=${HOME}/.wine/default \
-EDITOR=nano \
+EDITOR=vim \
 PAGER=less \
-VISUAL=gedit \
+VISUAL=gvim \
 BROWSER=firefox 
 #GTK2_RC_FILES="/usr/share/themes/Arch/gtk-2.0/gtkrc"
 
