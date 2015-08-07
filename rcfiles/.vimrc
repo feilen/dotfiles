@@ -104,3 +104,7 @@ if has('langmap') && exists('+langnoremap')
 endif
 :set term=builtin_ansi
 :imap qq <Esc>
+if &term =~ '^screen'
+  "tmux knows the extended mouse mode
+  set ttymouse=xterm2
+endif
