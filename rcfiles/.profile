@@ -11,7 +11,7 @@ PATH=${HOME}/.local/bin:${HOME}/.local/dotfiles/riftutilities:${PATH} \
 WINEPREFIX=${HOME}/.wine/default \
 EDITOR=vim \
 PAGER=less \
-VISUAL=gvim \
+VISUAL=vim \
 BROWSER=firefox 
 #GTK2_RC_FILES="/usr/share/themes/Arch/gtk-2.0/gtkrc"
 
