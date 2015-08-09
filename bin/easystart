@@ -1,0 +1,4 @@
+#!/bin/sh
+sudo easytether-usb
+sudo ip link set up easytether-tap
+sudo dhclient easytether-tap
