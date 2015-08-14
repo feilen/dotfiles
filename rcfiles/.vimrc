@@ -7,4 +7,8 @@ try
 source ~/.vim_runtime/my_configs.vim
 catch
 endtry
+set t_Co=256
+set background=dark
+colorscheme peaksea
 :imap qq <Esc>
+set foldcolumn=0
