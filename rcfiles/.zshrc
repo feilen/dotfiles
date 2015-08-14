@@ -38,12 +38,14 @@ prompt adam2 8bit 236 201 201
 # Window title
 #------------------------------
 case $TERM in
-  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term)
+  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
     precmd () {
       #vcs_info
       print -Pn "\e]0;[%n@%M][%~]%#\a"
     } 
-    preexec () { print -Pn "\e]0;[%n@%M][%~]%# ($1)\a" }
+    preexec () { 
+      print -Pn "\e]0;[%n@%M][%~]%# ($1)\a" 
+    }
     ;;
   screen|screen-256color)
     precmd () { 
