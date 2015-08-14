@@ -12,3 +12,4 @@ set background=dark
 colorscheme peaksea
 :imap qq <Esc>
 set foldcolumn=0
+set clipboard=unnamed
