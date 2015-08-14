@@ -19,6 +19,10 @@ echo "Symlinking ~/.local/bin..."
 ln -sT "${DOTFILES}/bin" "${HOME}/.local/bin"
 echo
 
+echo "Symlinking ~/.vim_runtime..."
+ln -sfT "${DOTFILES}/vimrc" "${HOME}/.vim_runtime"
+echo
+
 echo "Adding rcfiles..."
 for file in $(find "${DOTFILES}/rcfiles/" -type f); do
 	BASENAME=$(basename ${file})
