@@ -12,7 +12,7 @@ set background=dark
 colorscheme peaksea
 :imap qq <Esc>
 set foldcolumn=0
-set clipboard=unnamed
+set clipboard=unnamedplus
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -22,3 +22,6 @@ let g:syntastic_always_populate_loc_list = 0
 let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+
+let $PAGER=''
+

@@ -26,5 +26,7 @@ else
 	syndaemon -i .5 -K -t -R -d
 fi
 
+xfce4-volumed-pulse & 
+
 #Begin
 exec startlxde
