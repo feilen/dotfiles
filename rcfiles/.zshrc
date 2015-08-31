@@ -1,7 +1,7 @@
 # TMUX
 if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
-    if [[ "$(hostname)" == "gaming" ]] || [ ! -z $DISPLAY ] && [[ "$XDG_VNTR" != "1" ]]; then
+    if [ ! -z $DISPLAY ] || [[ "$XDG_VTNR" != "1" ]]; then
          if [ -z "$TMUX" ]; then
              (tmux -2 attach || tmux -2 new-session)
              exit $?
