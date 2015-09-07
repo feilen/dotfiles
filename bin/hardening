@@ -3,66 +3,11 @@
 sudo tee /etc/sysctl.d/50-dmesg-restrict.conf <<< "kernel.dmesg_restrict = 1"
 sudo tee /etc/sysctl.d/50-kptr-restrict.conf <<< "kernel.kptr_restrict = 1"
 
-sudo pacman -S hidepid dnscrypt-proxy pdnsd
+sudo pacman -S hidepid dnscrypt-proxy
 
-echo "Add the following lines after hitting enter..."
-echo "[Socket]"
-echo "ListenStream="
-echo "ListenDatagram="
-echo "ListenStream=127.0.0.1:40"
-echo "ListenDatagram=127.0.0.1:40"
-
-read
-sudo systemctl edit dnscrypt-proxy.socket
 sudo vim /usr/share/dnscrypt-proxy/dnscrypt-resolvers.csv
 sudo systemctl enable dnscrypt-proxy.socket
 sudo systemctl start dnscrypt-proxy.socket
-
-read -d '' PDNSDCONF <<- EOF
-global {
-	perm_cache=16384;
-	cache_dir="/var/cache/pdnsd";
-	run_as="pdnsd";
- 	server_ip = 127.0.0.1;
-	status_ctl = on;
-	query_method=udp_tcp;
-	min_ttl=15m;       # Retain cached entries at least 15 minutes.
-	max_ttl=1w;        # One week.
-	timeout=10;        # Global timeout option (10 seconds).
-	neg_domain_pol=on;
-	udpbufsize=1024;   # Upper limit on the size of UDP messages.
-}
-
-server {
-	label = "dnscrypt-proxy";
-	ip = 127.0.0.1;
-	port = 40;
-	timeout = 4;
-	interface = any;
-	uptest = if;
-	interval = 15m;
-	proxy_only=on;
-}
-
-source {
-	owner=localhost;
-	file="/etc/hosts";
-}
-
-
-rr {
-	name=localhost;
-	reverse=on;
-	a=127.0.0.1;
-	owner=localhost;
-	soa=localhost,root.localhost,42,86400,900,86400,86400;
-}
-EOF
-
-sudo rm /etc/pdnsd.conf
-sudo tee /etc/pdnsd.conf <<< "$PDNSDCONF"
-sudo systemctl enable pdnsd
-sudo systemctl start pdnsd
 
 echo "Now go set your networkmanager settings to use 127.0.0.1 as the DNS resolver."
 echo "TODO: Set up SSH to deny root login, and require both a key AND a password to log in."
