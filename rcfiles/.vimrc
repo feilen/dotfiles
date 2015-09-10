@@ -10,7 +10,7 @@ endtry
 set t_Co=256
 set background=dark
 colorscheme peaksea
-:imap qq <Esc>
+:imap aa <Esc>
 set foldcolumn=0
 set clipboard=unnamedplus
 
