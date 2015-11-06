@@ -26,9 +26,12 @@ else
 	syndaemon -i .5 -K -t -R -d
 fi
 
+#Keyring
+eval $(/usr/bin/gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)
+export SSH_AUTH_SOCK
+
 #Begin
-xfce4-volumed-pulse & 
 compton -cCzG -t-3 -l-5 -r4 \
      --config /dev/null --backend xrender \
       --unredir-if-possible &
-exec startlxde
+exec startxfce4
