@@ -17,5 +17,3 @@ PAGER="/bin/sh -c \"unset PAGER;col -x -b | \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\"" \
 BROWSER=firefox 
 #GTK2_RC_FILES="/usr/share/themes/Arch/gtk-2.0/gtkrc"
-
-alias firefox='env GTK2_RC_FILES="/usr/share/themes/Equinox Evolution Dawn/gtk-2.0/gtkrc" /usr/lib/firefox/firefox'
