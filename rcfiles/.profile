@@ -14,6 +14,7 @@ VISUAL=vim \
 PAGER="/bin/sh -c \"unset PAGER;col -x -b | \
     vim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
     -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
+    -c 'setfiletype diff' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\"" \
 BROWSER=firefox 
 #GTK2_RC_FILES="/usr/share/themes/Arch/gtk-2.0/gtkrc"
