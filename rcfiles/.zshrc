@@ -19,6 +19,8 @@ bindkey -e
 zstyle :compinstall filename '/home/feilen/.zshrc'
 # Automatically find new executables
 zstyle ':completion:*' rehash true
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+unsetopt listambiguous
 
 autoload -Uz compinit
 compinit
