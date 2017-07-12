@@ -7,12 +7,19 @@ try
 source ~/.vim_runtime/my_configs.vim
 catch
 endtry
+call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 set t_Co=256
 set background=dark
 colorscheme peaksea
 :imap aa <Esc>
 set foldcolumn=0
-set clipboard=unnamedplus
+
+:let operatingsystem=system('uname')
+if operatingsystem=~#"^CYGWIN"
+    set clipboard=unnamed
+else
+    set clipboard=unnamedplus
+endif
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -24,4 +31,3 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
 let $PAGER=''
-
