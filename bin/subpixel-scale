@@ -1,10 +1,11 @@
 #!/bin/sh
 
-OUTPUT_W=1920
-OUTPUT_H=1080
+OUTPUT_W=1680   
+OUTPUT_H=1050
 
 convert "${1}" +repage \
--colorspace LAB -filter lanczos -distort Resize $((3 * $OUTPUT_W ))x${OUTPUT_H}\! \
+-colorspace RGB -distort Resize $((3 * $OUTPUT_W ))x${OUTPUT_H}\! \
+-colorspace LAB -channel R -unsharp 0x0.785398+0.7071+0 +channel \
 -colorspace sRGB \
 -channel R -morphology Convolve '3x1: 0, 0, 1' \
 -channel G -morphology Convolve '3x1: 0, 1, 0' \
