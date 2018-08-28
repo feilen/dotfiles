@@ -12,7 +12,7 @@ parser.add_argument('-s', '--size', metavar='pixels', type=int, default=512, hel
 parser.add_argument('filename', metavar='image', nargs='+', help='image(s) to mipify')
 parser.add_argument('-c', '--compress', metavar='N', type=int, default=3, help='compression format (0 = None, 1 = BC1/DXT1, 2 = BC2/DXT3, 3 = BC3/DXT5, 4 = BC3n/DXT5nm, 5 = BC4/ATI1N, 6 = BC5/ATI2N, 7 = RXGB (DXT5), 8 = Alpha Exponent (DXT5), 9 = YCoCg (DXT5), 10 = YCoCg scaled (DXT5))')
 parser.add_argument('-f', '--filter', default='lanczos', help='filter to use for resampling, default lanczos')
-parser.add_argument('-u', '--unsharpafter', default=-1, type=int, help='apply unsharp mask after n images')
+parser.add_argument('-u', '--unsharpafter', default=0, type=int, help='apply unsharp mask after n images')
 parser.add_argument('--nogamma', action='store_true', help='don\'t apply gamma correction to scaling')
 parser.add_argument('--extargs', metavar='argument', default='', help='extra arguments to supply to convert after each imgname')
 parser.add_argument('--nomips', action='store_true', help='do not generate mipmaps')
@@ -43,7 +43,7 @@ for image in arguments.filename:
         command += '+distort resize ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' -extent ' + str(int(math.pow(2, s))) + 'x' + str(int(math.pow(2, s))) + ' '
         if (arguments.unsharpafter >= 0):
             if (unsharp > arguments.unsharpafter):
-                command += '-unsharp 0x0.785398+0.7071+0 '
+                command += '-colorspace LAB -channel R -unsharp 0x0.785398+0.7071+0 +channel -colorspace ' + arguments.colorspace + ' '
             unsharp += 1
         if not arguments.nogamma:
             command += '-colorspace sRGB '
