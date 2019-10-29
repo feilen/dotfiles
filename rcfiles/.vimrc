@@ -30,4 +30,8 @@ let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
+let g:syntastic_python_checkers = ['pyflakes', 'pylint']
+let g:syntastic_python_pylint_exe = 'python -m pylint'
+let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
+
 let $PAGER=''

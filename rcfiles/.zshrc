@@ -3,7 +3,14 @@ if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
     if [ ! -z $DISPLAY ] || [[ "$XDG_VTNR" != "1" ]]; then
          if [ -z "$TMUX" ]; then
-             (tmux -2 attach || tmux -2 new-session)
+             # If there's an unattached session, attach to it. Otherwise, create a new session
+             UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
+             if [ ! -z "$UNATTACHED_SESSION" ]; then
+                 tmux -2 attach -t $UNATTACHED_SESSION
+             else
+                 tmux -2 new-session
+             fi
+             #(tmux -2 attach || tmux -2 new-session)
              exit $?
          fi
     fi
@@ -43,10 +50,10 @@ case $TERM in
   termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
     precmd () {
       #vcs_info
-      print -Pn "\e]0;[%n@%M][%~]%#\a"
+      print -Pn "\e]0;%~\a"
     } 
     preexec () { 
-      print -Pn "\e]0;[%n@%M][%~]%# ($1)\a" 
+      print -Pn "\e]0;$1\a" 
     }
     ;;
   screen|screen-256color)
