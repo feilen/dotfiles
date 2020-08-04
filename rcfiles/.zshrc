@@ -18,8 +18,8 @@ fi
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
-HISTSIZE=1024
-SAVEHIST=1024
+HISTSIZE=10240
+SAVEHIST=10240
 bindkey -e
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall

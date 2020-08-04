@@ -34,4 +34,14 @@ let g:syntastic_python_checkers = ['pyflakes', 'pylint']
 let g:syntastic_python_pylint_exe = 'python -m pylint'
 let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
 
+" Tab navigation like Firefox.
+nnoremap <C-S-tab> :tabprevious<CR>
+nnoremap <C-tab>   :tabnext<CR>
+inoremap <C-S-tab> <Esc>:tabprevious<CR>i
+inoremap <C-tab>   <Esc>:tabnext<CR>i
+
+if has("gui_running")
+    set guifont=Monospace
+endif
+
 let $PAGER=''

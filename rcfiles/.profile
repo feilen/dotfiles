@@ -4,7 +4,6 @@ DOTPROFILE=1 #We've loaded this script
 
 export WINEDEBUG=-all \
 STEAM_FRAME_FORCE_CLOSE=1 \
-STEAM_RUNTIME=0 \
 SDL_AUDIO=pulse \
 SDL_AUDIODRIVER=pulse \
 PATH=${HOME}/.local/bin:${HOME}/.local/dotfiles/riftutilities:/usr/lib/ccache/bin/:${PATH} \
