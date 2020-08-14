@@ -20,6 +20,7 @@ if operatingsystem=~#"^CYGWIN"
 else
     set clipboard=unnamedplus
 endif
+:set mouse=a
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
