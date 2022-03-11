@@ -45,4 +45,6 @@ if has("gui_running")
     set guifont=Monospace
 endif
 
+
+set expandtab!
 let $PAGER=''

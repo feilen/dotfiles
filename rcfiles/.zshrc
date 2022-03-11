@@ -73,11 +73,12 @@ esac
 alias ls='ls --color=auto -tr1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
-alias nano='vim'
 alias vim='vim -p'
 alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
 alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
 alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
+
+alias chels-show-package-files='dpkg -L'
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
