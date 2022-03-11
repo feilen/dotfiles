@@ -16,8 +16,10 @@ if which tmux >/dev/null 2>&1; then
     fi
 fi
 
-/usr/bin/keychain -q --nogui $HOME/.ssh/dev
-source $HOME/.keychain/CJaggi-sh
+if which /usr/bin/keychain > /dev/null ; then
+	/usr/bin/keychain -q --nogui $HOME/.ssh/dev
+	source $HOME/.keychain/CJaggi-sh
+fi
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
