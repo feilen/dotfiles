@@ -31,6 +31,7 @@ zstyle :compinstall filename '/home/feilen/.zshrc'
 zstyle ':completion:*' rehash true
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 unsetopt listambiguous
+unsetopt LIST_BEEP
 
 autoload -Uz compinit
 compinit
@@ -54,22 +55,22 @@ case $TERM in
     precmd () {
       #vcs_info
       print -Pn "\e]0;%~\a"
-    } 
-    preexec () { 
-      print -Pn "\e]0;$1\a" 
+    }
+    preexec () {
+      print -Pn "\e]0;$1\a"
     }
     ;;
   screen|screen-256color)
-    precmd () { 
+    precmd () {
       #vcs_info
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a" 
+      print -Pn "\e]83;title \"$1\"\a"
+      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
     }
-    preexec () { 
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a" 
+    preexec () {
+      print -Pn "\e]83;title \"$1\"\a"
+      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a"
     }
-    ;; 
+    ;;
 esac
 
 # create a zkbd compatible hash;
@@ -108,7 +109,7 @@ function zle-line-finish () {
     echoti rmkx
 }
 #zle -N zle-line-init
-#zle -N zle-line-finish  
+#zle -N zle-line-finish
 source ${HOME}/.local/dotfiles/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # if we read .local/last_zsh_run and it's a new day, update last_zsh_run and fetch updates to .local/dotfiles

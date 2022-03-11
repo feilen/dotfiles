@@ -10,3 +10,6 @@
 [submodule "vim-plugins/supertab"]
 	path = vim-plugins/supertab
 	url = https://github.com/ervandew/supertab.git
+[submodule "vim-plugins/syntastic"]
+	path = vim-plugins/syntastic
+	url = https://github.com/vim-syntastic/syntastic.git

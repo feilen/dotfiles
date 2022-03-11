@@ -58,3 +58,12 @@ endif
 
 set expandtab!
 let $PAGER=''
+set colorcolumn=80,100
+autocmd FileType gitcommit set colorcolumn=72 "commit messages are different"
+autocmd BufWritePre * :%s/\s\+$//e
+set wildmode=longest,list,full
+set wildmenu
+set noerrorbells visualbell t_vb=
+if has('autocmd')
+      autocmd GUIEnter * set visualbell t_vb=
+endif
