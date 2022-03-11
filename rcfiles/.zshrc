@@ -147,8 +147,17 @@ fi
 if ! which gvim > /dev/null ; then
     echo "gvim does not appear to be installed. Copy will not work"
 fi
-# TODO: Syntastic checkers
-
+if ! which cppcheck > /dev/null; then
+	echo "cppcheck does nott appear to be installed"
+fi
+if which python3 > /dev/null ; then
+	if ! echo "import pylint" | python3 2>/dev/null > /dev/null ; then
+		echo "Pylint not installed for python3"
+	fi
+	if ! echo "import pyflakes" | python3 2>/dev/null > /dev/null ; then
+		echo "Pyflakes not installed for python3"
+	fi
+fi
 
 # Aliases
 alias ls='ls --color=auto -tr1'

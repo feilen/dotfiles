@@ -3,10 +3,16 @@ source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
 source ~/.vim_runtime/vimrcs/extended.vim
+
 try
-source ~/.vim_runtime/my_configs.vim
+	source ~/.vim_runtime/my_configs.vim
 catch
 endtry
+try
+	source ~/co/router/click/etc/click.vim
+catch
+endtry
+
 call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 set t_Co=256
 set background=dark
@@ -33,9 +39,16 @@ let g:syntastic_auto_loc_list = 2
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
+" Can always check :SyntasticInfo to see what is available/enabled for a particular file.
+
 let g:syntastic_python_checkers = ['pyflakes', 'pylint']
-let g:syntastic_python_pylint_exe = 'python -m pylint'
+let g:syntastic_python_pylint_exe = 'python3 -m pylint'
 let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
+
+let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
+let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
+
+" let g:syntastic_cpp_checkers = ['cppcheck']
 
 " Tab navigation like Firefox.
 nnoremap <C-S-tab> :tabprevious<CR>
