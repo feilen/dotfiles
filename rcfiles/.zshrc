@@ -16,6 +16,9 @@ if which tmux >/dev/null 2>&1; then
     fi
 fi
 
+/usr/bin/keychain -q --nogui $HOME/.ssh/dev
+source $HOME/.keychain/CJaggi-sh
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10240
@@ -79,6 +82,10 @@ alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t 
 alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
 
 alias chels-show-package-files='dpkg -L'
+alias chels-bell="/bin/sh -c \"echo -ne '\x07' && sleep 0.15 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 0.15 && echo -ne '\x07'\" &"
+alias chels-frodo='telnet 172.29.7.184 3004'
+alias chels-sf205='ssh -A chelseaj@sf205.meraki.com'
+alias chels-dev114='ssh -A chelseaj@dev114.meraki.com'
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
@@ -118,5 +125,25 @@ function zle-line-finish () {
 #zle -N zle-line-init
 #zle -N zle-line-finish  
 source ${HOME}/.local/dotfiles/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# if we read .local/last_zsh_run and it's a new day, update last_zsh_run and fetch updates to .local/dotfiles
+LAST_ZSH_RUN="$(cat ~/.local/last_zsh_run)"
+if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
+    (
+        cd ~/.local/dotfiles
+        git fetch --all
+    )
+    date '+%U' > ~/.local/last_zsh_run
+fi
+
+# if there's changes on master we don't have, notify
+(
+    cd ~/.local/dotfiles
+    GIT_CHERRY="$(git cherry HEAD origin/master)"
+    if [[ ! -z "$GIT_CHERRY" ]]; then
+        echo "The following changes need to be pulled in:"
+        echo "$GIT_CHERRY"
+    fi
+)
 
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log
