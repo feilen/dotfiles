@@ -45,9 +45,10 @@ compinit
 # Prompt
 #------------------------------
 
+HOSTCOLOUR="$(cat ~/.local/hostcolour)"
 autoload -U promptinit
 promptinit
-prompt adam2 8bit 236 201 201
+prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
 
 #------------------------------
 # Window title
