@@ -126,20 +126,28 @@ fi
 (
     cd ~/.local/dotfiles
     GIT_CHERRY="$(git cherry HEAD origin/master)"
+	GIT_MODIFIED="$(git status -s | grep '^ [MD]')"
     if [[ ! -z "$GIT_CHERRY" ]]; then
         echo "The following changes need to be pulled in:"
         echo "$GIT_CHERRY"
     fi
+	if [[ ! -z "$GIT_MODIFIED" ]]; then
+		echo "The following have been changed and need to be merged:"
+		echo "$GIT_MODIFIED"
+	fi
 )
 
+# Sanity/Setup checks
 if ! which xclip > /dev/null ; then
     echo "xclip does not appear to be installed. Copy will not work"
 fi
 if ! which gvim > /dev/null ; then
     echo "gvim does not appear to be installed. Copy will not work"
 fi
+# TODO: Syntastic checkers
 
-# ALIASES
+
+# Aliases
 alias ls='ls --color=auto -tr1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
