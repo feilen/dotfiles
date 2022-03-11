@@ -72,21 +72,6 @@ case $TERM in
     ;; 
 esac
 
-
-alias ls='ls --color=auto -tr1'
-alias grep='grep --color=auto'
-alias asdf='setxkbmap us -variant colemak'
-alias vim='vim -p'
-alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
-alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
-alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
-
-alias chels-show-package-files='dpkg -L'
-alias chels-bell="/bin/sh -c \"echo -ne '\x07' && sleep 0.15 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 0.15 && echo -ne '\x07'\" &"
-alias chels-frodo='telnet 172.29.7.184 3004'
-alias chels-sf205='ssh -A chelseaj@sf205.meraki.com'
-alias chels-dev114='ssh -A chelseaj@dev114.meraki.com'
-
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
 typeset -A key
@@ -145,5 +130,33 @@ fi
         echo "$GIT_CHERRY"
     fi
 )
+
+if ! which xclip > /dev/null ; then
+    echo "xclip does not appear to be installed. Copy will not work"
+fi
+if ! which gvim > /dev/null ; then
+    echo "gvim does not appear to be installed. Copy will not work"
+fi
+
+# ALIASES
+alias ls='ls --color=auto -tr1'
+alias grep='grep --color=auto'
+alias asdf='setxkbmap us -variant colemak'
+alias nano='vim'
+alias vim='vim -p'
+alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
+alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
+alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
+
+alias chels-show-package-files='dpkg -L'
+alias chels-bell="/bin/sh -c \"echo -ne '\x07' && sleep 0.15 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 0.15 && echo -ne '\x07'\" &"
+alias chels-frodo='telnet 172.29.7.184 3004'
+alias chels-sf205='ssh -A chelseaj@sf205.meraki.com'
+alias chels-dev114='ssh -A chelseaj@dev114.meraki.com'
+if grep -qi Microsoft /proc/version ; then
+    alias chels-copy='clip.exe'
+else
+    alias chels-copy='xclip -selection clipboard -i'
+fi
 
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log
