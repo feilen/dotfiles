@@ -103,6 +103,9 @@ key[PageDown]=${terminfo[knp]}
 bindkey  "^[[1;5D"   backward-word
 bindkey  "^[[1;5C"   forward-word
 
+# Set Vim Mode
+bindkey -v
+
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
 function zle-line-init () {
@@ -149,6 +152,9 @@ if ! which gvim > /dev/null ; then
 fi
 if ! which cppcheck > /dev/null; then
 	echo "cppcheck does nott appear to be installed"
+fi
+if ! which flake8 > /dev/null; then
+	echo "flake8 does nott appear to be installed"
 fi
 if which python3 > /dev/null ; then
 	if ! echo "import pylint" | python3 2>/dev/null > /dev/null ; then
