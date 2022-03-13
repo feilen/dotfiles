@@ -56,7 +56,6 @@ prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
 case $TERM in
   termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
     precmd () {
-      #vcs_info
       print -Pn "\e]0;%~\a"
     }
     preexec () {
@@ -65,7 +64,6 @@ case $TERM in
     ;;
   screen|screen-256color)
     precmd () {
-      #vcs_info
       print -Pn "\e]83;title \"$1\"\a"
       print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
     }
