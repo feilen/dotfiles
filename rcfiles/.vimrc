@@ -1,8 +1,15 @@
 set runtimepath+=~/.vim_runtime
+
 source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
 source ~/.vim_runtime/vimrcs/extended.vim
+
+" Avoid breaking airline
+let g:lightline.enable = {
+    \ 'statusline': 0,
+    \ 'tabline': 0
+    \ }
 
 try
 	source ~/.vim_runtime/my_configs.vim
@@ -26,12 +33,14 @@ if operatingsystem=~#"^CYGWIN"
 else
     set clipboard=unnamedplus
 endif
-:set mouse=a
 
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%{FugitiveStatusLine()}
-set statusline+=%*
+" Airline manages this.
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%{FugitiveStatusLine()}
+" set statusline+=%*
+
+" let g:airline_powerline_fonts = 1 TODO: autodetect this
 
 let g:autoclose_on = 0
 
@@ -51,11 +60,12 @@ let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
 " Show git differences
 let g:gitgutter_enabled = '1'
 
-" Tab navigation like Firefox.
-nnoremap <C-S-tab> :tabprevious<CR>
-nnoremap <C-tab>   :tabnext<CR>
-inoremap <C-S-tab> <Esc>:tabprevious<CR>i
-inoremap <C-tab>   <Esc>:tabnext<CR>i
+" Force the use of hjkl until I'm actually used to it.
+autocmd VimEnter,BufNewFile,BufReadPost * silent! call HardMode()
+set nowrap
+
+" let g:HardMode_level = 'wannabe'
+" :set mouse=a
 
 if has("gui_running")
     set guifont=Monospace
@@ -81,6 +91,10 @@ highlight SignColumn ctermbg=235
 highlight! link GitGutterAdd SignColumn
 highlight! link GitGutterChange SignColumn
 highlight! link GitGutterDelete SignColumn
+set signcolumn=yes
+let g:airline_theme='peaksea'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#hunks#enabled=0
 
 autocmd BufWritePre * :%s/\s\+$//e
 set wildmode=longest,list,full
@@ -93,6 +107,8 @@ endif
 " Stuff to remember!
 " :SyntasticInfo    diagnostic info about why syntax checks might not be working
 " Ctrl+F               to rapid search using the 'ctrlp' fuzzy file/tag searcher
+" ,f                                              same, but through recent files
+" ,b                                            same, but through recent buffers
 " gp                                                      open file under cursor
 " ,o (simultaneously)                           look through all current buffers
 " gc, gcc                               comment/uncomment the target of a motion
@@ -114,3 +130,11 @@ endif
 " ,v                    copy a link to the line of a git repository to clipboard
 " F5              execute current file. needs ~/.vim_runtime/vimrcs/extended.vim
 " ,cc                                      open a new window with current errors
+" ,bd 				                                        close current buffer
+" ,ba                                                          close all buffers
+" ^w v/s                                      split pane horizontally/vertically
+" ^w hjkl                                                         navigate panes
+" ^O                                             go back to last cursor position
+" gd                               go to definition of local symbol under cursor
+" { }                                                previous or next blank line
+" [ ]                                           jump forward/back blocks of code
