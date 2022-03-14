@@ -126,6 +126,16 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
     date '+%U' > ~/.local/last_zsh_run
 fi
 
+LAST_MOTD="$(cat ~/.local/last_motd)"
+if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
+    (
+        if [[ -e "/etc/motd" ]]; then
+			cat /etc/motd
+		fi
+    )
+    date '+%j' > ~/.local/last_motd
+fi
+
 # if there's changes on master we don't have, notify
 (
     cd ~/.local/dotfiles

@@ -15,10 +15,6 @@ try
 	source ~/.vim_runtime/my_configs.vim
 catch
 endtry
-try
-	source ~/co/router/click/etc/click.vim
-catch
-endtry
 
 call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 set t_Co=256
@@ -53,12 +49,17 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_python_checkers = ['pyflakes', 'pylint', 'flake8']
 let g:syntastic_python_pylint_exe = 'python3 -m pylint'
 let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
-
 let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
 let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
 
 " Show git differences
 let g:gitgutter_enabled = '1'
+" let g:syntastic_cpp_checkers = ['cppcheck']
+try
+	source ~/co-router-syntastic.vim
+	source ~/co/router/click/etc/click.vim
+catch
+endtry
 
 " Force the use of hjkl until I'm actually used to it.
 autocmd VimEnter,BufNewFile,BufReadPost * silent! call HardMode()
@@ -91,10 +92,17 @@ highlight SignColumn ctermbg=235
 highlight! link GitGutterAdd SignColumn
 highlight! link GitGutterChange SignColumn
 highlight! link GitGutterDelete SignColumn
-set signcolumn=yes
+try
+	set signcolumn=yes
+catch
+	autocmd BufEnter * sign define dummy
+	autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+endtry
 let g:airline_theme='peaksea'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
+let g:ctrlp_user_command = ['yocto', 'cd %s && git ls-files -co --exclude-standard|grep -v "^linux\|^yocto\|^testbed\|^wlan\|^wired\|^vivotek"']
 
 autocmd BufWritePre * :%s/\s\+$//e
 set wildmode=longest,list,full
