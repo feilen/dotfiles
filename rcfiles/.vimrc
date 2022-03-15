@@ -118,6 +118,7 @@ endif
 " ,f                                              same, but through recent files
 " ,b                                            same, but through recent buffers
 " gp                                                      open file under cursor
+" ,pp                                                           toggle pastemode
 " ,o (simultaneously)                           look through all current buffers
 " gc, gcc                               comment/uncomment the target of a motion
 " gv                                                  reselect last visual block

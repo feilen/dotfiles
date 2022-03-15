@@ -122,6 +122,7 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
     (
         cd ~/.local/dotfiles
         git fetch --all
+		git submodule init
     )
     date '+%U' > ~/.local/last_zsh_run
 fi
