@@ -113,6 +113,29 @@ if has('autocmd')
       autocmd GUIEnter * set visualbell t_vb=
 endif
 
+function! PaneNavTmuxTry(d)
+	let wid = win_getid()
+	if a:d == 'D'
+		wincmd j
+	elseif a:d == 'U'
+		wincmd k
+	elseif a:d == 'L'
+		wincmd h
+	elseif a:d == 'R'
+		wincmd l
+	endif
+	if win_getid() == wid
+		call system('tmux select-pane -' . a:d)
+	endif
+endfunction
+map <silent> <M-w>U :call PaneNavTmuxTry('U')<CR>
+map <silent> <M-w>D :call PaneNavTmuxTry('D')<CR>
+map <silent> <M-w>L :call PaneNavTmuxTry('L')<CR>
+map <silent> <M-w>R :call PaneNavTmuxTry('R')<CR>
+imap <silent> <M-w>U <Esc>:call PaneNavTmuxTry('U')<CR>
+imap <silent> <M-w>D <Esc>:call PaneNavTmuxTry('D')<CR>
+imap <silent> <M-w>L <Esc>:call PaneNavTmuxTry('L')<CR>
+imap <silent> <M-w>R <Esc>:call PaneNavTmuxTry('R')<CR>
 " Stuff to remember!
 " :SyntasticInfo    diagnostic info about why syntax checks might not be working
 " Ctrl+F               to rapid search using the 'ctrlp' fuzzy file/tag searcher

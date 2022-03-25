@@ -154,6 +154,9 @@ fi
 )
 
 # Sanity/Setup checks
+if ! which shellcheck > /dev/null ; then
+    echo "shellcheck does not appear to be installed"
+fi
 if ! which xclip > /dev/null ; then
     echo "xclip does not appear to be installed. Copy will not work"
 fi
