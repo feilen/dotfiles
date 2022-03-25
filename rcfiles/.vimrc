@@ -103,6 +103,7 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
 let g:ctrlp_user_command = ['yocto', 'cd %s && git ls-files -co --exclude-standard|grep -v "^build\|^linux\|^yocto/build\|^testbed\|^wlan\|^wired\|^vivotek"']
+set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 
 autocmd BufWritePre * :%s/\s\+$//e
 set wildmode=longest,list,full
