@@ -4,7 +4,7 @@
 if [ $# -ne 2 ]; then echo Invalid args; exit 1; fi
 VIMPREFIX='M-w'
 
-TTY="$(tmux list-panes -F "#{pane_active} #{pane_tty}" | grep -E "^1" | cut -d " " -f 2- | cut -d / -f 3-)"
+TTY="$(tmux list-panes -F "#{pane_active} #{pane_tty}" | sed '/^1/!d;s/.*dev\///')"
 if [ -z "$TTY" ]; then exit 1; fi
 PROCS="$(ps -ao tty,comm | grep -E "^${TTY}\\s" | awk '{print $3}')"
 
