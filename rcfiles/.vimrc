@@ -10,7 +10,6 @@ let g:lightline.enable = {
     \ 'statusline': 0,
     \ 'tabline': 0
     \ }
-
 try
 	source ~/.vim_runtime/my_configs.vim
 catch
@@ -22,6 +21,10 @@ set background=dark
 colorscheme peaksea
 :imap aa <Esc>
 set foldcolumn=0
+set splitbelow
+set splitright
+
+nnoremap <silent> <C-w><S-'> <C-w>v
 
 :let operatingsystem=system('uname')
 if operatingsystem=~#"^CYGWIN"
@@ -146,7 +149,7 @@ imap <silent> <M-w>R <Esc>:call PaneNavTmuxTry('R')<CR>
 " ,o (simultaneously)                           look through all current buffers
 " gc, gcc                               comment/uncomment the target of a motion
 " gv                                                  reselect last visual block
-" >, < 												      indent, unindent block
+" >, <                                                    indent, unindent block
 " ci(                                             change text inside parenthesis
 " o                                                          open new line below
 " :Git      call git from within vim. Wraps most git functions to do nice things
@@ -163,7 +166,7 @@ imap <silent> <M-w>R <Esc>:call PaneNavTmuxTry('R')<CR>
 " ,v                    copy a link to the line of a git repository to clipboard
 " F5              execute current file. needs ~/.vim_runtime/vimrcs/extended.vim
 " ,cc                                      open a new window with current errors
-" ,bd 				                                        close current buffer
+" ,bd                                                       close current buffer
 " ,ba                                                          close all buffers
 " ^w v/s                                      split pane horizontally/vertically
 " ^w hjkl                                                         navigate panes
@@ -171,4 +174,5 @@ imap <silent> <M-w>R <Esc>:call PaneNavTmuxTry('R')<CR>
 " gd                               go to definition of local symbol under cursor
 " { }                                                previous or next blank line
 " [ ]                                           jump forward/back blocks of code
-" cnext, cprev    							     jump between results from Ggrep
+" cnext, cprev                                   jump between results from Ggrep
+" J                                                    join next line to current

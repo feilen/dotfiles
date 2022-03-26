@@ -125,12 +125,24 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
         git fetch --all
 		git submodule init
     )
+	if ! which gh > /dev/null ; then
+		echo "gh not installed, won't be able to show github issues"
+	fi
     date '+%U' > ~/.local/last_zsh_run
 fi
 
+alias chels-issues="gh api issues | jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
 LAST_MOTD="$(cat ~/.local/last_motd)"
 if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
+	if which gh > /dev/null ; then
+		ISSUES_LIST="$(chels-issues)"
+		if [[ ! -z "$ISSUES_LIST" ]]; then
+			echo "Assigned github issues:"
+			PAGER= chels-issues
+		fi
+	fi
     (
+		localmotd
         if [[ -e "/etc/motd" ]]; then
 			cat /etc/motd
 		fi
@@ -195,6 +207,9 @@ if grep -qi Microsoft /proc/version ; then
     alias chels-copy='clip.exe'
 else
     alias chels-copy='xclip -selection clipboard -i'
+fi
+if which gh > /dev/null; then
+	alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
 fi
 
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log

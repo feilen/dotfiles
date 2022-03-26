@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+import os
+import stat
+import sys
+import datetime
+import argparse
+import caldav
+import dateutil
+import icalendar
+from dateutil import tz
+from dateutil.parser import parse
+from termcolor import colored
+
+
+def get_event_time(event, tag):
+    time = None
+    try:
+        time = icalendar.vDatetime.from_ical(event[tag].to_ical())
+    except ValueError:
+        time = dateutil.parser.parse(event[tag].to_ical())
+    if time.tzinfo is not None:
+        time = time.astimezone(tz.gettz('America/Los_Angeles'))
+    time = time.replace(tzinfo=None)
+    return time
+
+# retrieve all VTODOs with selected tags
+tag_colors = {'Code':'cyan', 'Modelling':'red', 'Order':'yellow', 'Planning':'yellow',
+              'Games':'white', 'Self care':'magenta', 'Chores':'green', 'Computer':'white'}
+selected_tags = {'Code', 'Modelling', 'Order', 'Planning', 'Games'}
+
+CALENDAR_SERVER = "https://tuxcat.info/remote.php/dav"
+CALDAV_CALENDAR = "https://tuxcat.info/remote.php/dav/calendars/feilen/personal1"
+CALDAV_USER = ""
+CALDAV_PASSWORD = ""
+parser = argparse.ArgumentParser(description='Retrieve current tasks from online.')
+parser.add_argument("--debug", type=bool, default=False, required=False)
+args = parser.parse_args()
+# read credentials from local file (ensure restrictive permissions)
+try:
+    st = os.stat("/home/feilen/.ssh/motd-credentials")
+    if (st.st_mode & stat.S_IRGRP) or (st.st_mode & stat.S_IROTH):
+        print("MOTD error: motd-credentials too permissive!")
+        sys.exit(1)
+    with open("/home/feilen/.ssh/motd-credentials", 'r') as fi:
+        CALDAV_USER = fi.readline().strip()
+        CALDAV_PASSWORD = fi.readline().strip()
+except:
+    sys.exit(1)
+
+client = caldav.DAVClient(url=CALENDAR_SERVER, username=CALDAV_USER, password=CALDAV_PASSWORD)
+my_calendar = client.calendar(url=CALDAV_CALENDAR)
+
+matching_categories = dict() # cat: [todos]
+todos = my_calendar.todos()
+# Only includes pending tasks.
+for todo in todos:
+    # each todo is a complete ical object, grab the vtodo from it
+    todo_info = next(evt for evt in icalendar.Calendar.from_ical(todo.data).subcomponents)
+    if "categories" in todo_info and any(category in todo_info["categories"].to_ical().decode().split(",") for category in selected_tags):
+        if 'dtstart' in todo_info and get_event_time(todo_info, 'dtstart') > datetime.datetime.now():
+            continue
+
+        categories = ",".join(set(todo_info["categories"].to_ical().decode().split(','))) # ordered
+        if categories not in matching_categories:
+            matching_categories[categories] = []
+        matching_categories[categories].append(todo_info)
+        if args.debug:
+            print(todo.data)
+
+for categories, todo_list in matching_categories.items():
+    cat_str = ""
+    for category in categories.split(","):
+        if category in tag_colors:
+            cat_str += colored("[{}] ".format(category), tag_colors[category])
+        else:
+            cat_str += "[{}] ".format(category)
+    print(cat_str)
+
+    for todo_info in todo_list:
+        if "description" in todo_info and len(todo_info["description"].strip()) > 0:
+            print(" {}: {}".format(todo_info["summary"], todo_info["description"][:80].split('\n')[0]))
+        else:
+            print(" {}".format(todo_info["summary"]))

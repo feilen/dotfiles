@@ -22,3 +22,6 @@
 [submodule "vim-plugins/hardmode"]
 	path = vim-plugins/hardmode
 	url = git@github.com:wikitopian/hardmode.git
+[submodule "vim-plugins/vim-paragraph-motion"]
+	path = vim-plugins/vim-paragraph-motion
+	url = https://github.com/dbakker/vim-paragraph-motion.git
