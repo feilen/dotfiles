@@ -101,10 +101,6 @@ key[PageDown]=${terminfo[knp]}
 bindkey  "^[[1;5D"   backward-word
 bindkey  "^[[1;5C"   forward-word
 
-# Set Vim Mode
-bindkey -v
-bindkey "^R" history-incremental-search-backward
-
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
 function zle-line-init () {
