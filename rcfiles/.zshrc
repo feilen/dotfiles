@@ -3,15 +3,19 @@ if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
     if [ ! -z $DISPLAY ] || [[ "$XDG_VTNR" != "1" ]]; then
          if [ -z "$TMUX" ]; then
-             # If there's an unattached session, attach to it. Otherwise, create a new session
-             UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
-             if [ ! -z "$UNATTACHED_SESSION" ]; then
-                 tmux -2 attach -t $UNATTACHED_SESSION
+             if [ -z $SSH_CLIENT ]; then
+                 # If there's an unattached session, attach to it. Otherwise, create a new session
+                 UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
+                 if [ ! -z "$UNATTACHED_SESSION" ]; then
+                     tmux -2 attach -t $UNATTACHED_SESSION
+                 else
+                     tmux -2 new-session
+                 fi
+                 exit $?
              else
-                 tmux -2 new-session
+                 # Always reattach over SSH
+                 (tmux -2 attach || tmux -2 new-session)
              fi
-             #(tmux -2 attach || tmux -2 new-session)
-             exit $?
          fi
     fi
 fi
