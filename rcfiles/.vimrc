@@ -116,6 +116,9 @@ if has('autocmd')
       autocmd GUIEnter * set visualbell t_vb=
 endif
 
+autocmd! FileType qf nnoremap <buffer> <leader><Enter> <C-w><Enter><C-w>L
+autocmd WinEnter * vertical resize 82
+
 map <C-g> :Ggrep! --quiet<Space>
 map <C-t> :CtrlPTag<CR>
 " C-f is already mapped to CtrlP, aka fuzzy file search
@@ -181,3 +184,5 @@ imap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
 " [ ]                                           jump forward/back blocks of code
 " cnext, cprev                                   jump between results from Ggrep
 " J                                                    join next line to current
+" C-v and C-x  when using CtrlP                           open selected in split
+"                       maybe add QFEnter and some binds to make it do the same?
