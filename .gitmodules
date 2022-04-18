@@ -28,3 +28,6 @@
 [submodule "vim-plugins/quickr-preview"]
 	path = vim-plugins/quickr-preview
 	url = https://github.com/ronakg/quickr-preview.vim.git
+[submodule "vim-plugins/vim-signature"]
+	path = vim-plugins/vim-signature
+	url = https://github.com/kshenoy/vim-signature.git
