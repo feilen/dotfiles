@@ -25,3 +25,6 @@
 [submodule "vim-plugins/vim-paragraph-motion"]
 	path = vim-plugins/vim-paragraph-motion
 	url = https://github.com/dbakker/vim-paragraph-motion.git
+[submodule "vim-plugins/quickr-preview"]
+	path = vim-plugins/quickr-preview
+	url = https://github.com/ronakg/quickr-preview.vim.git
