@@ -3,7 +3,7 @@ set runtimepath+=~/.vim_runtime
 source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
-source ~/.vim_runtime/vimrcs/extended.vim
+" source ~/.vim_runtime/vimrcs/extended.vim
 
 " Avoid breaking airline
 let g:lightline.enable = {
@@ -25,6 +25,12 @@ set splitbelow
 set splitright
 
 nnoremap <silent> <C-w><S-'> <C-w>v
+
+try
+    set undodir=~/.vim_runtime/temp_dirs/undodir
+    set undofile
+catch
+endtry
 
 :let operatingsystem=system('uname')
 if operatingsystem=~#"^CYGWIN"
@@ -116,13 +122,16 @@ if has('autocmd')
       autocmd GUIEnter * set visualbell t_vb=
 endif
 
-autocmd! FileType qf nnoremap <buffer> <leader><Enter> <C-w><Enter><C-w>L
-autocmd WinEnter * vertical resize 82
+" autocmd WinEnter * vertical resize 82
+" autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
 map <C-g> :Ggrep! --quiet<Space>
 map <C-t> :CtrlPTag<CR>
 " C-f is already mapped to CtrlP, aka fuzzy file search
 
+let g:quickr_preview_keymaps = 0
+let g:quickr_preview_on_cursor = 1
+let g:quickr_preview_exit_on_enter = 1
 
 function! PaneNavTmuxTry(d)
 	let wid = win_getid()
@@ -139,14 +148,14 @@ function! PaneNavTmuxTry(d)
 		call system('tmux select-pane -' . a:d)
 	endif
 endfunction
-nmap <silent> <C-k> :call PaneNavTmuxTry('U')<CR>
-nmap <silent> <C-j> :call PaneNavTmuxTry('D')<CR>
-nmap <silent> <C-h> :call PaneNavTmuxTry('L')<CR>
-nmap <silent> <C-l> :call PaneNavTmuxTry('R')<CR>
-imap <silent> <C-k> <Esc>:call PaneNavTmuxTry('U')<CR>
-imap <silent> <C-j> <Esc>:call PaneNavTmuxTry('D')<CR>
-imap <silent> <C-h> <Esc>:call PaneNavTmuxTry('L')<CR>
-imap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
+nnoremap <silent> <C-k> :call PaneNavTmuxTry('U')<CR>
+nnoremap <silent> <C-j> :call PaneNavTmuxTry('D')<CR>
+nnoremap <silent> <C-h> :call PaneNavTmuxTry('L')<CR>
+nnoremap <silent> <C-l> :call PaneNavTmuxTry('R')<CR>
+inoremap <silent> <C-k> <Esc>:call PaneNavTmuxTry('U')<CR>
+inoremap <silent> <C-j> <Esc>:call PaneNavTmuxTry('D')<CR>
+inoremap <silent> <C-h> <Esc>:call PaneNavTmuxTry('L')<CR>
+inoremap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
 " Stuff to remember!
 " :SyntasticInfo    diagnostic info about why syntax checks might not be working
 " Ctrl+F               to rapid search using the 'ctrlp' fuzzy file/tag searcher
