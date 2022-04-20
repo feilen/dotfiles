@@ -88,6 +88,16 @@ if executable(s:clip)
     augroup END
 endif
 
+" Use ripgrep if available
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+    set grepformat=%f:%l:%c:%m,%f:%l:%m
+    command! -nargs=+ Rgrep execute 'silent grep! <args>' | cw
+    map <C-g> :Rgrep<Space>
+else
+    map <C-g> :Ggrep! --quiet<Space>
+endif
+
 " Column length stuff
 set expandtab!
 let $PAGER=''
@@ -124,7 +134,6 @@ endif
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
 map <C-b> :CtrlPBuffer<CR>
-map <C-g> :Ggrep! --quiet<Space>
 map <C-t> :CtrlPTag<CR>
 " C-f is already mapped to CtrlP, aka fuzzy file search
 

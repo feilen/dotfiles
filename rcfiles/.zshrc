@@ -166,6 +166,9 @@ fi
 )
 
 # Sanity/Setup checks
+if ! which rg > /dev/null ; then
+    echo "ripgrep does not appear to be installed. vim will use gitgrep"
+fi
 if ! which shellcheck > /dev/null ; then
     echo "shellcheck does not appear to be installed"
 fi
