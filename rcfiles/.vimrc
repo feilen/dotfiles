@@ -92,7 +92,7 @@ endif
 if executable('rg')
     set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
     set grepformat=%f:%l:%c:%m,%f:%l:%m
-    command! -nargs=+ Rgrep execute 'silent grep! <args>' | cw
+    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw
     map <C-g> :Rgrep<Space>
 else
     map <C-g> :Ggrep! --quiet<Space>
