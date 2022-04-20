@@ -24,8 +24,6 @@ set foldcolumn=0
 set splitbelow
 set splitright
 
-nnoremap <silent> <C-w><S-'> <C-w>v
-
 try
     set undodir=~/.vim_runtime/temp_dirs/undodir
     set undofile
@@ -125,6 +123,7 @@ endif
 " autocmd WinEnter * vertical resize 82
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
+map <C-b> :CtrlPBuffer<CR>
 map <C-g> :Ggrep! --quiet<Space>
 map <C-t> :CtrlPTag<CR>
 " C-f is already mapped to CtrlP, aka fuzzy file search
@@ -132,6 +131,7 @@ map <C-t> :CtrlPTag<CR>
 let g:quickr_preview_keymaps = 0
 let g:quickr_preview_on_cursor = 1
 let g:quickr_preview_exit_on_enter = 1
+let g:gitgutter_map_keys = 0
 
 function! PaneNavTmuxTry(d)
 	let wid = win_getid()
@@ -195,3 +195,4 @@ inoremap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
 " J                                                    join next line to current
 " C-v and C-x  when using CtrlP                           open selected in split
 "                       maybe add QFEnter and some binds to make it do the same?
+" ,b                                   ctrlpbuffer... bit nicer than bufexplorer
