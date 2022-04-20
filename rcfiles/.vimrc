@@ -92,7 +92,9 @@ endif
 if executable('rg')
     set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
     set grepformat=%f:%l:%c:%m,%f:%l:%m
-    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw
+    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw | redraw!
+    " CtrlP works nicely but loses previews. Disable for now. Possibly toggle?
+    " command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | CtrlPQuickfix | redraw!
     map <C-g> :Rgrep<Space>
 else
     map <C-g> :Ggrep! --quiet<Space>
@@ -133,6 +135,8 @@ endif
 " autocmd WinEnter * vertical resize 82
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
+" possibly: use CtrlF for CtrlPMixed -> files, buffers, and MRU simultaneously
+map <C-r> :CtrlPMRU<CR>
 map <C-b> :CtrlPBuffer<CR>
 map <C-t> :CtrlPTag<CR>
 " C-f is already mapped to CtrlP, aka fuzzy file search
