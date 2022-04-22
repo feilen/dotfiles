@@ -136,11 +136,10 @@ endif
 " autocmd WinEnter * vertical resize 82
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
-" possibly: use CtrlF for CtrlPMixed -> files, buffers, and MRU simultaneously
-map <C-r> :CtrlPMRU<CR>
+" map <C-r> :CtrlPMRU<CR>
+map <C-f> :CtrlPMixed<CR>
 map <C-b> :CtrlPBuffer<CR>
 map <C-t> :CtrlPTag<CR>
-" C-f is already mapped to CtrlP, aka fuzzy file search
 
 let g:quickr_preview_keymaps = 0
 let g:quickr_preview_on_cursor = 1
