@@ -47,21 +47,22 @@ endif
 
 let g:autoclose_on = 0
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 2
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-" Can always check :SyntasticInfo to see what is available/enabled for a particular file.
-let g:syntastic_python_checkers = ['pyflakes', 'pylint', 'flake8']
-let g:syntastic_python_pylint_exe = 'python3 -m pylint'
-let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
-let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
+" Can always check :ALEInfo to see what is available/enabled for a particular file.
+let g:ale_linters = {
+\    'python': ['pyflakes', 'pylint', 'flake8'],
+\    'cpp': ['gcc', 'cppcheck']
+\}
+let g:ale_fixers = {
+\    '*': ['remove_trailing_lines', 'trim_whitespace'],
+\    'python': ['isort']
+\}
+let g:ale_python_pylint_executable = 'python3 -m pylint'
+let g:ale_python_pyflakes_executable = 'python3 -m pyflakes'
+let g:ale_cpp_cc_options = '-std=c++11 -Wall'
+let g:ale_python_flake8_options = '--ignore=E501,E265,E226,E302'
 
 " Show git differences
 let g:gitgutter_enabled = '1'
-" let g:syntastic_cpp_checkers = ['cppcheck']
 try
 	source ~/co-router-syntastic.vim
 	source ~/co/router/click/etc/click.vim
@@ -170,7 +171,7 @@ inoremap <silent> <C-j> <Esc>:call PaneNavTmuxTry('D')<CR>
 inoremap <silent> <C-h> <Esc>:call PaneNavTmuxTry('L')<CR>
 inoremap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
 " Stuff to remember!
-" :SyntasticInfo    diagnostic info about why syntax checks might not be working
+" :ALEInfo        diagnostic info about why syntax checks might not be working
 " Ctrl+F               to rapid search using the 'ctrlp' fuzzy file/tag searcher
 " ,f                                              same, but through recent files
 " ,b                                            same, but through recent buffers
