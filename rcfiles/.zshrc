@@ -3,19 +3,14 @@ if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
     if [ ! -z $DISPLAY ] || [[ "$XDG_VTNR" != "1" ]]; then
          if [ -z "$TMUX" ]; then
-             if [ -z $SSH_CLIENT ]; then
-                 # If there's an unattached session, attach to it. Otherwise, create a new session
-                 UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
-                 if [ ! -z "$UNATTACHED_SESSION" ]; then
-                     tmux -2 attach -t $UNATTACHED_SESSION
-                 else
-                     tmux -2 new-session
-                 fi
-                 exit $?
+             # If there's an unattached session, attach to it. Otherwise, create a new session
+             UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
+             if [ ! -z "$UNATTACHED_SESSION" ]; then
+                 exec tmux -2 attach -t $UNATTACHED_SESSION
              else
-                 # Always reattach over SSH
-                 (tmux -2 attach || tmux -2 new-session)
+                 exec tmux -2 new-session
              fi
+             exit $?
          fi
     fi
 fi
@@ -38,6 +33,7 @@ zstyle ':completion:*' rehash true
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 unsetopt listambiguous
 unsetopt LIST_BEEP
+setopt NO_NOMATCH
 
 autoload -Uz compinit
 compinit
@@ -166,30 +162,36 @@ fi
 )
 
 # Sanity/Setup checks
-if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core*.so > /dev/null ; then
+if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core.so > /dev/null 2>&1; then
     echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
 fi
-if ! which rg > /dev/null ; then
-    echo "ripgrep does not appear to be installed. vim will use gitgrep"
+
+if ! which flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
+    if ! which rg > /dev/null ; then
+        echo "ripgrep does not appear to be installed. vim will use gitgrep"
+    fi
+    if ! which shellcheck > /dev/null ; then
+        echo "shellcheck does not appear to be installed"
+    fi
+    if ! which ctags > /dev/null ; then
+        echo "ctags does not appear to be installed. Source indexing won't work."
+    fi
+    if ! which xclip > /dev/null ; then
+        if [ -z "$SSH_CONNECTION" ]; then
+            echo "xclip does not appear to be installed. Copy will not work"
+        fi
+    fi
+    if ! which gvim > /dev/null ; then
+        echo "gvim does not appear to be installed. Copy will not work"
+    fi
+    if ! which cppcheck > /dev/null; then
+            echo "cppcheck does nott appear to be installed"
+    fi
+    if ! which flake8 > /dev/null; then
+            echo "flake8 does nott appear to be installed"
+    fi
 fi
-if ! which shellcheck > /dev/null ; then
-    echo "shellcheck does not appear to be installed"
-fi
-if ! which ctags > /dev/null ; then
-    echo "ctags does not appear to be installed. Source indexing won't work."
-fi
-if ! which xclip > /dev/null ; then
-    echo "xclip does not appear to be installed. Copy will not work"
-fi
-if ! which gvim > /dev/null ; then
-    echo "gvim does not appear to be installed. Copy will not work"
-fi
-if ! which cppcheck > /dev/null; then
-	echo "cppcheck does nott appear to be installed"
-fi
-if ! which flake8 > /dev/null; then
-	echo "flake8 does nott appear to be installed"
-fi
+
 if which python3 > /dev/null ; then
 	if ! echo "import pylint" | python3 2>/dev/null > /dev/null ; then
 		echo "Pylint not installed for python3"
@@ -209,9 +211,6 @@ alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /
 
 alias chels-show-package-files='dpkg -L'
 alias chels-bell="/bin/sh -c \"echo -ne '\x07' && sleep 0.15 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 0.15 && echo -ne '\x07'\" &"
-alias chels-frodo='telnet 172.29.7.184 3004'
-alias chels-sf205='ssh -A chelseaj@sf205.meraki.com'
-alias chels-dev114='ssh -A chelseaj@dev114.meraki.com'
 if grep -qi Microsoft /proc/version ; then
     alias chels-copy='clip.exe'
 else

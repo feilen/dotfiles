@@ -3,7 +3,6 @@ set runtimepath+=~/.vim_runtime
 source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
-" source ~/.vim_runtime/vimrcs/extended.vim
 
 " Avoid breaking airline
 let g:lightline.enable = {
@@ -15,7 +14,14 @@ try
 catch
 endtry
 
+" YouCompleteMe, ALE needs vim 8+
+if v:version < 801
+    let g:pathogen_blacklist = ['YouCompleteMe', 'ale']
+else
+    let g:pathogen_blacklist = ['syntastic']
+endif
 call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
+
 set t_Co=256
 set background=dark
 colorscheme peaksea
@@ -37,29 +43,35 @@ else
     set clipboard=unnamedplus
 endif
 
-" Airline manages this.
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%{FugitiveStatusLine()}
-" set statusline+=%*
-
-" let g:airline_powerline_fonts = 1 TODO: autodetect this
-
 let g:autoclose_on = 0
 
-" Can always check :ALEInfo to see what is available/enabled for a particular file.
-let g:ale_linters = {
-\    'python': ['pyflakes', 'pylint', 'flake8'],
-\    'cpp': ['gcc', 'cppcheck']
-\}
-let g:ale_fixers = {
-\    '*': ['remove_trailing_lines', 'trim_whitespace'],
-\    'python': ['isort']
-\}
-let g:ale_python_pylint_executable = 'python3 -m pylint'
-let g:ale_python_pyflakes_executable = 'python3 -m pyflakes'
-let g:ale_cpp_cc_options = '-std=c++11 -Wall'
-let g:ale_python_flake8_options = '--ignore=E501,E265,E226,E302'
+if v:version < 801
+    let g:syntastic_always_populate_loc_list = 1
+    let g:syntastic_auto_loc_list = 2
+    let g:syntastic_check_on_open = 1
+    let g:syntastic_check_on_wq = 0
+
+    " Can always check :SyntasticInfo to see what is available/enabled for a particular file.
+    let g:syntastic_python_checkers = ['pyflakes', 'pylint', 'flake8']
+    let g:syntastic_python_pylint_exe = 'python3 -m pylint'
+    let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
+    let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
+    let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
+else
+    " Can always check :ALEInfo to see what is available/enabled for a particular file.
+    let g:ale_linters = {
+    \    'python': ['pyflakes', 'pylint', 'flake8'],
+    \    'cpp': ['gcc', 'cppcheck']
+    \}
+    let g:ale_fixers = {
+    \    '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \    'python': ['isort']
+    \}
+    let g:ale_python_pylint_executable = 'python3 -m pylint'
+    let g:ale_python_pyflakes_executable = 'python3 -m pyflakes'
+    let g:ale_cpp_cc_options = '-std=c++11 -Wall'
+    let g:ale_python_flake8_options = '--ignore=E501,E265,E226,E302'
+endif
 
 " Show git differences
 let g:gitgutter_enabled = '1'
@@ -121,8 +133,14 @@ endtry
 let g:airline_theme='peaksea'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
-let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
-let g:ctrlp_user_command = ['yocto', 'cd %s && git ls-files -co --exclude-standard|grep -v "^build\|^linux\|^yocto/build\|^testbed\|^wlan\|^wired\|^vivotek"']
+let g:ctrlp_user_command = {
+	\ 'types': {
+                \ 1: ['yocto', 'cd %s && git ls-files -co --exclude-standard|grep -v "^build\|^linux\|^yocto/build\|^testbed\|^wlan\|^wired\|^vivotek"'],
+		\ 2: ['.git', 'cd %s && git ls-files'],
+		\ 3: ['.hg', 'hg --cwd %s locate -I .'],
+		\ },
+	\ 'fallback': 'find %s -type f'
+	\ }
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 
 autocmd BufWritePre * :%s/\s\+$//e
@@ -137,9 +155,11 @@ endif
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
 " map <C-r> :CtrlPMRU<CR>
-map <C-f> :CtrlPMixed<CR>
+noremap <C-f> :CtrlPMixed<CR>
 map <C-b> :CtrlPBuffer<CR>
 map <C-t> :CtrlPTag<CR>
+" execute pre-commit hook: I generally set this up to run unit tests
+map <C-x> :!LANG=en_US.UTF-8 ./.git/hooks/pre-commit<CR>
 
 let g:quickr_preview_keymaps = 0
 let g:quickr_preview_on_cursor = 1
