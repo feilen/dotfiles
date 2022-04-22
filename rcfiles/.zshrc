@@ -166,6 +166,9 @@ fi
 )
 
 # Sanity/Setup checks
+if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core*.so > /dev/null ; then
+    echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
+fi
 if ! which rg > /dev/null ; then
     echo "ripgrep does not appear to be installed. vim will use gitgrep"
 fi

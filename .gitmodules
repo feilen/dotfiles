@@ -28,3 +28,6 @@
 [submodule "vim-plugins/vim-signature"]
 	path = vim-plugins/vim-signature
 	url = https://github.com/kshenoy/vim-signature.git
+[submodule "vim-plugins/YouCompleteMe"]
+	path = vim-plugins/YouCompleteMe
+	url = https://github.com/ycm-core/YouCompleteMe.git
