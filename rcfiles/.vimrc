@@ -1,5 +1,17 @@
 set runtimepath+=~/.vim_runtime
 
+" YouCompleteMe, ALE needs vim 8+
+if v:version < 801
+    let g:pathogen_blacklist = ['YouCompleteMe', 'ale']
+else
+    let g:pathogen_blacklist = ['syntastic', 'YouCompleteMe-legacy']
+endif
+call add(g:pathogen_blacklist, 'vim-snipmate')
+call add(g:pathogen_blacklist, 'vim-multiple_cursor')
+call add(g:pathogen_blacklist, 'lightline.vim')
+call add(g:pathogen_blacklist, 'lightline-ale')
+call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
+
 source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
@@ -13,14 +25,6 @@ try
 	source ~/.vim_runtime/my_configs.vim
 catch
 endtry
-
-" YouCompleteMe, ALE needs vim 8+
-if v:version < 801
-    let g:pathogen_blacklist = ['YouCompleteMe', 'ale']
-else
-    let g:pathogen_blacklist = ['syntastic']
-endif
-call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 
 set t_Co=256
 set background=dark

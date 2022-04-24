@@ -34,3 +34,7 @@
 [submodule "vim-plugins/syntastic"]
 	path = vim-plugins/syntastic
 	url = https://github.com/vim-syntastic/syntastic.git
+[submodule "vim-plugins/YouCompleteMe-legacy"]
+	path = vim-plugins/YouCompleteMe-legacy
+	url = https://github.com/ycm-core/YouCompleteMe.git
+	branch = legacy-vim
