@@ -15,6 +15,16 @@ if which tmux >/dev/null 2>&1; then
     fi
 fi
 
+# Fuzzy ^R history search
+export PATH="${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin:${PATH}"
+if which exa bat chafa exiftool >/dev/null; then
+    export FZF_PREVIEW_ADVANCED=true FZF_PREVIEW_WINDOW="down:50%:nohidden"
+fi
+if which rg >/dev/null; then
+    export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+fi
+source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
+
 if which /usr/bin/keychain > /dev/null ; then
 	/usr/bin/keychain -q --nogui $HOME/.ssh/dev
 	source $HOME/.keychain/CJaggi-sh
@@ -166,7 +176,7 @@ if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core.so > /dev/null 2>&1;
     echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
 fi
 
-if ! which flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
+if ! which exa bat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
     if ! which rg > /dev/null ; then
         echo "ripgrep does not appear to be installed. vim will use gitgrep"
     fi
@@ -186,6 +196,15 @@ if ! which flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
     fi
     if ! which cppcheck > /dev/null; then
             echo "cppcheck does nott appear to be installed"
+    fi
+    if ! which bat > /dev/null; then
+            echo "bat does nott appear to be installed"
+    fi
+    if ! which exa > /dev/null; then
+            echo "exa does nott appear to be installed"
+    fi
+    if ! which chafa > /dev/null; then
+            echo "chafa does nott appear to be installed"
     fi
     if ! which flake8 > /dev/null; then
             echo "flake8 does nott appear to be installed"

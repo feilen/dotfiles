@@ -38,3 +38,6 @@
 	path = vim-plugins/YouCompleteMe-legacy
 	url = https://github.com/ycm-core/YouCompleteMe.git
 	branch = legacy-vim
+[submodule "zsh-plugins/fzf-zsh-plugin"]
+	path = zsh-plugins/fzf-zsh-plugin
+	url = https://github.com/unixorn/fzf-zsh-plugin.git
