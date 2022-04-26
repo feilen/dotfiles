@@ -186,7 +186,7 @@ if ! which exa bat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/n
     if ! which ctags > /dev/null ; then
         echo "ctags does not appear to be installed. Source indexing won't work."
     fi
-    if ! which xclip > /dev/null ; then
+    if ! which xclip clip.exe > /dev/null ; then
         if [ -z "$SSH_CONNECTION" ]; then
             echo "xclip does not appear to be installed. Copy will not work"
         fi
