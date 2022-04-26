@@ -123,11 +123,14 @@ let $PAGER=''
 let &colorcolumn=join(range(81,999),",")
 autocmd FileType gitcommit let &colorcolumn=join(range(73,999),",") " commit messages are different
 autocmd FileType python let &colorcolumn=join(range(101,999),",") " default syntastic
+" Signcolumn color
 highlight ColorColumn ctermbg=235
 highlight SignColumn ctermbg=235
 highlight! link GitGutterAdd SignColumn
 highlight! link GitGutterChange SignColumn
 highlight! link GitGutterDelete SignColumn
+" pop-up menu
+highlight Pmenu ctermbg=236
 try
 	set signcolumn=yes
 catch
@@ -163,7 +166,18 @@ noremap <C-f> :CtrlPMixed<CR>
 map <C-b> :CtrlPBuffer<CR>
 map <C-t> :CtrlPTag<CR>
 " execute pre-commit hook: I generally set this up to run unit tests
-map <C-x> :!LANG=en_US.UTF-8 ./.git/hooks/pre-commit<CR>
+" generally add something like this to .git/hooks/pre-commit:
+"
+" OUTPUT="$(./run-tests 2>&1)"
+" if [ $? -ne 0 ]; then
+"     if [ -z "$VIM" ]; then
+"         echo "$OUTPUT"
+"     else
+"         echo "$OUTPUT" | sed '/^|/!d;s/^|//g;/: error: /!d;s/\.\.\///'
+"     fi
+"     exit 1
+" fi
+map <C-x> :cgetexpr system("LANG=en_US.UTF-8 ./.git/hooks/pre-commit")<CR>:cw<CR>
 
 let g:quickr_preview_keymaps = 0
 let g:quickr_preview_on_cursor = 1
