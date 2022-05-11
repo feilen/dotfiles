@@ -2,16 +2,16 @@
 if which tmux >/dev/null 2>&1; then
     #if not inside a tmux session, and if no session is started, start a new session
     if [ ! -z $DISPLAY ] || [[ "$XDG_VTNR" != "1" ]]; then
-         if [ -z "$TMUX" ]; then
-             # If there's an unattached session, attach to it. Otherwise, create a new session
-             UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
-             if [ ! -z "$UNATTACHED_SESSION" ]; then
-                 exec tmux -2 attach -t $UNATTACHED_SESSION
-             else
-                 exec tmux -2 new-session
-             fi
-             exit $?
-         fi
+        if [ -z "$TMUX" ]; then
+            # If there's an unattached session, attach to it. Otherwise, create a new session
+            UNATTACHED_SESSION="$(tmux list-sessions|grep -v attached|head -1|sed 's/:.*//g')"
+            if [ ! -z "$UNATTACHED_SESSION" ]; then
+                exec tmux -2 attach -t $UNATTACHED_SESSION
+            else
+                exec tmux -2 new-session
+            fi
+            exit $?
+        fi
     fi
 fi
 
@@ -26,8 +26,8 @@ fi
 source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
 
 if which /usr/bin/keychain > /dev/null ; then
-	/usr/bin/keychain -q --nogui $HOME/.ssh/dev
-	source $HOME/.keychain/CJaggi-sh
+    /usr/bin/keychain -q --nogui $HOME/.ssh/dev
+    source $HOME/.keychain/CJaggi-sh
 fi
 
 # Lines configured by zsh-newuser-install
@@ -64,24 +64,24 @@ prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
 # Window title
 #------------------------------
 case $TERM in
-  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
-    precmd () {
-      print -Pn "\e]0;%~\a"
-    }
+    termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
+        precmd () {
+            print -Pn "\e]0;%~\a"
+        }
     preexec () {
-      print -Pn "\e]0;$1\a"
+        print -Pn "\e]0;$1\a"
     }
-    ;;
-  screen|screen-256color)
+;;
+screen|screen-256color)
     precmd () {
-      print -Pn "\e]83;title \"$1\"\a"
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
+        print -Pn "\e]83;title \"$1\"\a"
+        print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
     }
-    preexec () {
-      print -Pn "\e]83;title \"$1\"\a"
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a"
-    }
-    ;;
+preexec () {
+    print -Pn "\e]83;title \"$1\"\a"
+    print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a"
+}
+;;
 esac
 
 # create a zkbd compatible hash;
@@ -114,10 +114,10 @@ bindkey  "^[[1;5C"   forward-word
 # Finally, make sure the terminal is in application mode, when zle is
 # active. Only then are the values from $terminfo valid.
 function zle-line-init () {
-    echoti smkx
+echoti smkx
 }
 function zle-line-finish () {
-    echoti rmkx
+echoti rmkx
 }
 #zle -N zle-line-init
 #zle -N zle-line-finish
@@ -127,98 +127,103 @@ source ${HOME}/.local/dotfiles/zsh-syntax-highlighting/zsh-syntax-highlighting.z
 LAST_ZSH_RUN="$(cat ~/.local/last_zsh_run)"
 if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
     (
-        cd ~/.local/dotfiles
-        git fetch --all
-		git submodule init
+    cd ~/.local/dotfiles
+    git fetch --all
+    git submodule init
     )
-	if ! which gh > /dev/null ; then
-		echo "gh not installed, won't be able to show github issues"
-	fi
+    if ! which gh > /dev/null ; then
+        echo "gh not installed, won't be able to show github issues"
+    fi
     date '+%U' > ~/.local/last_zsh_run
 fi
 
 alias chels-issues="gh api issues | jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
 LAST_MOTD="$(cat ~/.local/last_motd)"
 if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
-	if which gh > /dev/null ; then
-		ISSUES_LIST="$(chels-issues)"
-		if [[ ! -z "$ISSUES_LIST" ]]; then
-			echo "Assigned github issues:"
-			PAGER= chels-issues
-		fi
-	fi
+    if which gh > /dev/null ; then
+        ISSUES_LIST="$(chels-issues)"
+        if [[ ! -z "$ISSUES_LIST" ]]; then
+            echo "Assigned github issues:"
+            PAGER= chels-issues
+        fi
+    fi
     (
-		localmotd
+        localmotd
         if [[ -e "/etc/motd" ]]; then
-			cat /etc/motd
-		fi
+            cat /etc/motd
+        fi
     )
+    # Ensure default git-template exists
+    if [ -z "$(git config --path --get init.templatedir)" ]; then
+        git config --global init.templatedir '~/.local/dotfiles/git-template'
+    fi
+    # Sanity/Setup checks
+    if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core.so > /dev/null 2>&1; then
+        echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
+    fi
+
+    if ! which exa bat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
+        if ! which rg > /dev/null ; then
+            echo "ripgrep does not appear to be installed. vim will use gitgrep"
+        fi
+        if ! which shellcheck > /dev/null ; then
+            echo "shellcheck does not appear to be installed"
+        fi
+        if ! which ctags > /dev/null ; then
+            echo "ctags does not appear to be installed. Source indexing won't work."
+        fi
+        if ! which xclip clip.exe > /dev/null ; then
+            if [ -z "$SSH_CONNECTION" ]; then
+                echo "xclip does not appear to be installed. Copy will not work"
+            fi
+        fi
+        if ! which gvim > /dev/null ; then
+            echo "gvim does not appear to be installed. Copy will not work"
+        fi
+        if ! which cppcheck > /dev/null; then
+            echo "cppcheck does nott appear to be installed"
+        fi
+        if ! which batcat > /dev/null; then
+            echo "bat does nott appear to be installed"
+        fi
+        if ! which exa > /dev/null; then
+            echo "exa does nott appear to be installed"
+        fi
+        if ! which chafa > /dev/null; then
+            echo "chafa does nott appear to be installed"
+        fi
+        if ! which flake8 > /dev/null; then
+            echo "flake8 does nott appear to be installed"
+        fi
+    fi
+
+    if which python3 > /dev/null ; then
+        if ! echo "import pylint" | python3 2>/dev/null > /dev/null ; then
+            echo "Pylint not installed for python3"
+        fi
+        if ! echo "import pyflakes" | python3 2>/dev/null > /dev/null ; then
+            echo "Pyflakes not installed for python3"
+        fi
+    fi
+
+    # if there's changes on master we don't have, notify
+    (
+        cd ~/.local/dotfiles
+        GIT_CHERRY="$(git cherry HEAD origin/master)"
+        GIT_MODIFIED="$(git status -s | grep '^ [MD]')"
+        if [[ ! -z "$GIT_CHERRY" ]]; then
+            echo "The following changes need to be pulled in:"
+            echo "$GIT_CHERRY"
+        fi
+        if [[ ! -z "$GIT_MODIFIED" ]]; then
+            echo "The following have been changed and need to be merged:"
+            echo "$GIT_MODIFIED"
+        fi
+    )
+
     date '+%j' > ~/.local/last_motd
 fi
 
-# if there's changes on master we don't have, notify
-(
-    cd ~/.local/dotfiles
-    GIT_CHERRY="$(git cherry HEAD origin/master)"
-	GIT_MODIFIED="$(git status -s | grep '^ [MD]')"
-    if [[ ! -z "$GIT_CHERRY" ]]; then
-        echo "The following changes need to be pulled in:"
-        echo "$GIT_CHERRY"
-    fi
-	if [[ ! -z "$GIT_MODIFIED" ]]; then
-		echo "The following have been changed and need to be merged:"
-		echo "$GIT_MODIFIED"
-	fi
-)
-
-# Sanity/Setup checks
-if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core.so > /dev/null 2>&1; then
-    echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
-fi
-
-if ! which exa bat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
-    if ! which rg > /dev/null ; then
-        echo "ripgrep does not appear to be installed. vim will use gitgrep"
-    fi
-    if ! which shellcheck > /dev/null ; then
-        echo "shellcheck does not appear to be installed"
-    fi
-    if ! which ctags > /dev/null ; then
-        echo "ctags does not appear to be installed. Source indexing won't work."
-    fi
-    if ! which xclip clip.exe > /dev/null ; then
-        if [ -z "$SSH_CONNECTION" ]; then
-            echo "xclip does not appear to be installed. Copy will not work"
-        fi
-    fi
-    if ! which gvim > /dev/null ; then
-        echo "gvim does not appear to be installed. Copy will not work"
-    fi
-    if ! which cppcheck > /dev/null; then
-            echo "cppcheck does nott appear to be installed"
-    fi
-    if ! which bat > /dev/null; then
-            echo "bat does nott appear to be installed"
-    fi
-    if ! which exa > /dev/null; then
-            echo "exa does nott appear to be installed"
-    fi
-    if ! which chafa > /dev/null; then
-            echo "chafa does nott appear to be installed"
-    fi
-    if ! which flake8 > /dev/null; then
-            echo "flake8 does nott appear to be installed"
-    fi
-fi
-
-if which python3 > /dev/null ; then
-	if ! echo "import pylint" | python3 2>/dev/null > /dev/null ; then
-		echo "Pylint not installed for python3"
-	fi
-	if ! echo "import pyflakes" | python3 2>/dev/null > /dev/null ; then
-		echo "Pyflakes not installed for python3"
-	fi
-fi
 
 # Aliases
 alias ls='ls --color=auto -tr1'
@@ -236,7 +241,7 @@ else
     alias chels-copy='xclip -selection clipboard -i'
 fi
 if which gh > /dev/null; then
-	alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
+    alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
 fi
 
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+# Redirect output to stderr.
+exec 1>&2
+
+if (git diff "$against" | grep "^+.*TODO\|^+.*XXX"); then
+    echo "Found some new TODO/XXX's, not committing!"
+    exit 1
+fi
+
+if [ -z "$VIM" ]; then
+    # Run unit tests here
+    echo "No unit tests setup! Edit .git/hooks/pre-commit to add some tests."
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+else
+    OUTPUT="$(../../scripts/run-clicktests -c 2>&1)"
+    if [ $? -ne 0 ]; then
+        echo "$OUTPUT" | sed '/^|/!d;s/^|//g;/: error: /!d;s/\.\.\///'
+        exit 1
+    fi
+fi
