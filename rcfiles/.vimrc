@@ -10,6 +10,7 @@ call add(g:pathogen_blacklist, 'vim-snipmate')
 call add(g:pathogen_blacklist, 'vim-multiple_cursor')
 call add(g:pathogen_blacklist, 'lightline.vim')
 call add(g:pathogen_blacklist, 'lightline-ale')
+call add(g:pathogen_blacklist, 'auto-pairs')
 call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 
 source ~/.vim_runtime/vimrcs/basic.vim
@@ -109,7 +110,7 @@ endif
 if executable('rg')
     set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
     set grepformat=%f:%l:%c:%m,%f:%l:%m
-    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw | redraw! | 'silent call InitializeQuickrPreview()'
+    command! -nargs=+ Rgrep cclose | execute 'silent grep! "<args>"' | cw | redraw! | silent call InitializeQuickrPreview() | silent call QFList(line("."))
     " CtrlP works nicely but loses previews. Disable for now. Possibly toggle?
     " command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | CtrlPQuickfix | redraw!
     map <C-g> :Rgrep<Space>
