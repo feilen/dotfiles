@@ -148,7 +148,10 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
         fi
     fi
     (
-        localmotd
+        if [[ -e "/home/feilen/.ssh/motd-credentials" ]]; then
+            localmotd
+        fi
+
         if [[ -e "/etc/motd" ]]; then
             cat /etc/motd
         fi
@@ -158,11 +161,11 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
         git config --global init.templatedir '~/.local/dotfiles/git-template'
     fi
     # Sanity/Setup checks
-    if ! ls vim-plugins/YouCompleteMe/third_party/ycmd/ycm_core.so > /dev/null 2>&1; then
+    if ! ls ${HOME}/.local/dotfiles/vim-plugins/YouCompleteMe*/third_party/ycmd/ycm_core.*so > /dev/null 2>&1; then
         echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
     fi
 
-    if ! which exa bat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
+    if ! which exa batcat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
         if ! which rg > /dev/null ; then
             echo "ripgrep does not appear to be installed. vim will use gitgrep"
         fi
@@ -186,8 +189,10 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
         if ! which batcat > /dev/null; then
             echo "bat does nott appear to be installed"
         fi
-        if ! which exa > /dev/null; then
-            echo "exa does nott appear to be installed"
+        if [[ "$(lsb_release -rs|sed 's/[^0-9]//g')" -gt "2004" ]]; then
+            if ! which exa > /dev/null; then
+                echo "exa does nott appear to be installed"
+            fi
         fi
         if ! which chafa > /dev/null; then
             echo "chafa does nott appear to be installed"

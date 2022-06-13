@@ -109,7 +109,7 @@ endif
 if executable('rg')
     set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
     set grepformat=%f:%l:%c:%m,%f:%l:%m
-    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw | redraw!
+    command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | cw | redraw! | 'silent call InitializeQuickrPreview()'
     " CtrlP works nicely but loses previews. Disable for now. Possibly toggle?
     " command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | CtrlPQuickfix | redraw!
     map <C-g> :Rgrep<Space>
@@ -121,6 +121,7 @@ endif
 set expandtab!
 let $PAGER=''
 let &colorcolumn=join(range(81,999),",")
+autocmd FileType gitcommit let b:tw=72
 autocmd FileType gitcommit let &colorcolumn=join(range(73,999),",") " commit messages are different
 autocmd FileType python let &colorcolumn=join(range(101,999),",") " default syntastic
 " Signcolumn color
