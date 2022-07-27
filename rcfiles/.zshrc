@@ -24,6 +24,9 @@ if which rg >/dev/null; then
     export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
 fi
 source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
+bindkey -M emacs '^F' fzf-file-widget
+bindkey -M vicmd '^F' fzf-file-widget
+bindkey -M viins '^F' fzf-file-widget
 
 if which /usr/bin/keychain > /dev/null ; then
     /usr/bin/keychain -q --nogui $HOME/.ssh/dev
