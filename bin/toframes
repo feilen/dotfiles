@@ -1,9 +1,0 @@
-#!/usr/bin/bash
-IMAGE=$(echo $1 | sed 's/\..*/.png/')
-
-# Break a gif into frames for use with VTFEdit
-
-#exec convert "${1}" -coalesce -colorspace RGB -sampling-factor 1x1 -gravity center -filter lanczos2 -scale 128x128 -background black -extent 128x128 -colorspace sRGB "${IMAGE}.png"
-#exec convert "${1}" -coalesce -colorspace RGB -sampling-factor 1x1 -gravity center -filter lanczos2 -scale 128x128 -extent 128x128 -colorspace sRGB -background black "${IMAGE}.png"
-#exec convert "${1}" -coalesce -colorspace RGB -sampling-factor 1x1 -gravity center -filter lanczos2 -scale 128x128 -extent 128x128 -colorspace sRGB -background black "${IMAGE}.png"
-exec convert "${1}" -coalesce -colorspace RGB -sampling-factor 1x1 -gravity center -filter lanczos2 -scale 128^x128^ -extent 128x128 -colorspace sRGB -background black "${IMAGE}%03d.png"
