@@ -1,7 +1,0 @@
-#!/bin/bash
-
-OUTFILE=$(echo ${@}|sed 's/ //g').flac
-espeak -p 30 -v other/jbo -w /tmp/lowpitch.wav "${@}"
-espeak -p 70 -v other/jbo -w /tmp/highpitch.wav "${@}"
-sox -M /tmp/highpitch.wav /tmp/lowpitch.wav "${OUTFILE}"
-rm /tmp/{lowpitch.wav,highpitch.wav}
