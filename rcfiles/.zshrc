@@ -140,7 +140,7 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
     date '+%U' > ~/.local/last_zsh_run
 fi
 
-alias chels-issues="gh api issues | jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
+alias chels-issues="gh api -X GET issues -F per_page='100'| jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
 LAST_MOTD="$(cat ~/.local/last_motd)"
 if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
     if which gh > /dev/null ; then
