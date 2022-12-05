@@ -133,11 +133,11 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
     cd ~/.local/dotfiles
     git fetch --all
     git submodule init
-    )
     if ! which gh > /dev/null ; then
         echo "gh not installed, won't be able to show github issues"
     fi
     date '+%U' > ~/.local/last_zsh_run
+    ) &
 fi
 
 alias chels-issues="gh api -X GET issues -F per_page='100'| jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
@@ -163,6 +163,7 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
     if [ -z "$(git config --path --get init.templatedir)" ]; then
         git config --global init.templatedir '~/.local/dotfiles/git-template'
     fi
+    (
     # Sanity/Setup checks
     if ! ls ${HOME}/.local/dotfiles/vim-plugins/YouCompleteMe*/third_party/ycmd/ycm_core.*so > /dev/null 2>&1; then
         echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
@@ -213,6 +214,7 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
             echo "Pyflakes not installed for python3"
         fi
     fi
+    ) &
 
     # if there's changes on master we don't have, notify
     (
@@ -227,7 +229,7 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
             echo "The following have been changed and need to be merged:"
             echo "$GIT_MODIFIED"
         fi
-    )
+    ) &
 
     date '+%j' > ~/.local/last_motd
 fi
@@ -252,4 +254,5 @@ if which gh > /dev/null; then
     alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
 fi
 
+wait
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log
