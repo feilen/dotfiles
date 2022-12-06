@@ -1,0 +1,29 @@
+# Include via a "Include ~/.local/dotfiles/ssh_config/config" statement
+
+###
+# Use ForwardAgent for trusted hosts where we want access to our SSH keys from
+# the remote server.
+# ssh-agent must be set up locally
+###
+# ForwardAgent no
+
+###
+# ControlPath/Master/Persist - allow opening the same SSH connection without re-
+# entering authentication details. Useful for trivially using scp, etc.
+###
+ControlPath ~/.ssh/sockets/%r@%p:%p
+ControlMaster auto
+ControlPersist 2h
+
+###
+# Host-specific config examples
+###
+# Host example_host_*
+#     HostName %h.hostdomain.com
+#     User known-user
+#     ProxyJump needed-proxy.host
+#     IdentityFile ~/.ssh/my_key
+#     ForwardAgent yes
+#     # Open forward if none exists
+#     Match Exec "! nc -z 127.0.0.1 1234"
+#         LocalForward 9999 1.2.3.4:1234

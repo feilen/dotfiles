@@ -37,4 +37,9 @@ for file in $(find "${DOTFILES}/rcfiles/" -type f); do
 	echo
 done
 
+if [ ! -e "${HOME}/.ssh/config" ]; then
+    echo "Include ~/.local/dotfiles/ssh_config/config" >> "${HOME}/.ssh/config"
+    chmod 600 "${HOME}/.ssh/config"
+fi
+
 echo "All done! Relog to see changes."
