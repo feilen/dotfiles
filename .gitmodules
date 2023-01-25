@@ -41,3 +41,9 @@
 [submodule "zsh-plugins/fzf-zsh-plugin"]
 	path = zsh-plugins/fzf-zsh-plugin
 	url = https://github.com/unixorn/fzf-zsh-plugin.git
+[submodule "vim-plugins/kotlin-vim"]
+	path = vim-plugins/kotlin-vim
+	url = https://github.com/udalov/kotlin-vim.git
+[submodule "vim-plugins/vim-glsl"]
+	path = vim-plugins/vim-glsl
+	url = https://github.com/tikhomirov/vim-glsl.git

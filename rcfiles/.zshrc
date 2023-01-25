@@ -21,6 +21,7 @@ if which exa bat chafa exiftool >/dev/null; then
     export FZF_PREVIEW_ADVANCED=true FZF_PREVIEW_WINDOW="down:50%:nohidden"
 fi
 if which rg >/dev/null; then
+    export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
     export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
 fi
 source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
