@@ -22,7 +22,11 @@ if which exa bat chafa exiftool >/dev/null; then
 fi
 if which rg >/dev/null; then
     export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
-    export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
+    export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden | rg -v "\.meta$"'
+fi
+if which nvim >/dev/null; then
+    alias vim=nvim
+    export EDITOR=nvim
 fi
 source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
 bindkey -M emacs '^F' fzf-file-widget
@@ -170,7 +174,7 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
         echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
     fi
 
-    if ! which exa batcat chafa flake8 cppcheck gvim xclip ctags shellcheck rg > /dev/null ; then
+    if ! which exa batcat chafa flake8 cppcheck nvim xclip ctags shellcheck rg > /dev/null ; then
         if ! which rg > /dev/null ; then
             echo "ripgrep does not appear to be installed. vim will use gitgrep"
         fi
@@ -185,8 +189,8 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
                 echo "xclip does not appear to be installed. Copy will not work"
             fi
         fi
-        if ! which gvim > /dev/null ; then
-            echo "gvim does not appear to be installed. Copy will not work"
+        if ! which nvim > /dev/null ; then
+            echo "nvim does not appear to be installed. Copy will not work"
         fi
         if ! which cppcheck > /dev/null; then
             echo "cppcheck does nott appear to be installed"

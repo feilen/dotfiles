@@ -17,6 +17,11 @@ source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
 
+" To split vim/nvim behaviour
+" if has('nvim')
+"         tnoremap <Esc> <C-\><C-n>
+" endif
+
 " Avoid breaking airline
 let g:lightline.enable = {
     \ 'statusline': 0,
