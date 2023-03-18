@@ -50,3 +50,6 @@
 [submodule "vim-plugins/fzf.vim"]
 	path = vim-plugins/fzf.vim
 	url = https://github.com/junegunn/fzf.vim.git
+[submodule "vim-plugins/copilot.vim"]
+	path = vim-plugins/copilot.vim
+	url = https://github.com/github/copilot.vim.git

@@ -42,8 +42,6 @@ if [ ! -e "${HOME}/.ssh/config" ]; then
     chmod 600 "${HOME}/.ssh/config"
 fi
 
-git clone https://github.com/github/copilot.vim.git ~/.config/nvim/pack/github/start/copilot.vim
-
 mkdir -p ~/.config/nvim
 echo "set runtimepath^=~/.vim runtimepath+=~/.vim/after" >> ~/.config/nvim/init.vim
 echo "let &packpath=&runtimepath" >> ~/.config/nvim/init.vim

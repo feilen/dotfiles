@@ -12,6 +12,11 @@ call add(g:pathogen_blacklist, 'vim-multiple_cursor')
 call add(g:pathogen_blacklist, 'lightline.vim')
 call add(g:pathogen_blacklist, 'lightline-ale')
 call add(g:pathogen_blacklist, 'auto-pairs')
+if !has('nvim')
+    call add(g:pathogen_blacklist, 'copilot.vim')
+else
+    noremap <S-Tab> :Copilot<CR>
+endif
 if executable('fzf')
     call add(g:pathogen_blacklist, 'ctrlp.vim')
 endif
@@ -21,10 +26,6 @@ source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
 
-" To split vim/nvim behaviour
-" if has('nvim')
-"         tnoremap <Esc> <C-\><C-n>
-" endif
 
 " Avoid breaking airline
 let g:lightline.enable = {
