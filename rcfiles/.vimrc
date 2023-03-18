@@ -1,4 +1,5 @@
 set runtimepath+=~/.vim_runtime
+source ~/.fzf/plugin/fzf.vim
 
 " YouCompleteMe, ALE needs vim 8+
 if v:version < 801
@@ -11,6 +12,9 @@ call add(g:pathogen_blacklist, 'vim-multiple_cursor')
 call add(g:pathogen_blacklist, 'lightline.vim')
 call add(g:pathogen_blacklist, 'lightline-ale')
 call add(g:pathogen_blacklist, 'auto-pairs')
+if executable('fzf')
+    call add(g:pathogen_blacklist, 'ctrlp.vim')
+endif
 call pathogen#infect('~/.local/dotfiles/vim-plugins/{}')
 
 source ~/.vim_runtime/vimrcs/basic.vim
@@ -113,11 +117,17 @@ endif
 
 " Use ripgrep if available
 if executable('rg')
-    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
-    set grepformat=%f:%l:%c:%m,%f:%l:%m
-    command! -nargs=+ Rgrep cclose | execute 'silent grep! "<args>"' | cw | redraw! | silent call InitializeQuickrPreview() | silent call QFList(line("."))
-    " CtrlP works nicely but loses previews. Disable for now. Possibly toggle?
-    " command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | CtrlPQuickfix | redraw!
+    if !executable('fzf')
+        set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+        set grepformat=%f:%l:%c:%m,%f:%l:%m
+        command! -nargs=+ Rgrep cclose | execute 'silent grep! "<args>"' | cw | redraw! | silent call InitializeQuickrPreview() | silent call QFList(line("."))
+        " CtrlP works nicely but loses previews. Disable for now. Possibly toggle?
+        " command! -nargs=+ Rgrep execute 'silent grep! "<args>"' | CtrlPQuickfix | redraw!
+    else
+        set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+        set grepformat=%f:%l:%c:%m,%f:%l:%m
+        command! -bang -nargs=* Rgrep call fzf#vim#grep('rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1, fzf#vim#with_preview(), <bang>0)
+    endif
     map <C-g> :Rgrep<Space>
 else
     map <C-g> :Ggrep! --quiet<Space>
@@ -169,9 +179,16 @@ endif
 " autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
 
 " map <C-r> :CtrlPMRU<CR>
-noremap <C-f> :CtrlPMixed<CR>
-map <C-b> :CtrlPBuffer<CR>
-map <C-t> :CtrlPTag<CR>
+if !executable('fzf')
+    noremap <C-f> :CtrlPMixed<CR>
+    map <C-b> :CtrlPBuffer<CR>
+    map <C-t> :CtrlPTag<CR>
+else
+    let g:fzf_preview_window = ['right,50%,nohidden', 'ctrl-/']
+    noremap <C-f> :Files<CR>
+    map <C-b> :Buffers<CR>
+    map <C-t> :Tags<CR>
+endif
 " execute pre-commit hook: I generally set this up to run unit tests
 " generally add something like this to .git/hooks/pre-commit:
 "

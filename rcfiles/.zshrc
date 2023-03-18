@@ -18,7 +18,9 @@ fi
 # Fuzzy ^R history search
 export PATH="${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin:${PATH}"
 if which exa bat chafa exiftool >/dev/null; then
-    export FZF_PREVIEW_ADVANCED=true FZF_PREVIEW_WINDOW="down:50%:nohidden"
+    export FZF_PREVIEW_ADVANCED=true FZF_PREVIEW_WINDOW="right:50%:nohidden"
+else
+    export FZF_PREVIEW_WINDOW="right:50%:nohidden"
 fi
 if which rg >/dev/null; then
     export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"

@@ -47,3 +47,6 @@
 [submodule "vim-plugins/vim-glsl"]
 	path = vim-plugins/vim-glsl
 	url = https://github.com/tikhomirov/vim-glsl.git
+[submodule "vim-plugins/fzf.vim"]
+	path = vim-plugins/fzf.vim
+	url = https://github.com/junegunn/fzf.vim.git
