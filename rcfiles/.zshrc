@@ -66,9 +66,30 @@ compinit
 #------------------------------
 
 HOSTCOLOUR="$(cat ~/.local/hostcolour)"
-autoload -U promptinit
-promptinit
-prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
+#autoload -U promptinit
+#promptinit
+#prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
+
+function git_branch_name() {
+    local branch_name
+    branch_name=$(git symbolic-ref HEAD 2> /dev/null) || return
+    echo \> ${branch_name##refs/heads/}
+}
+
+function if_failed() {
+    last_status=$?
+    if [[ $last_status -ne 0 ]]; then
+        echo "%F{red}return=${last_status}%f"
+    fi
+}
+
+# Set up the prompt (with git branch name)
+setopt PROMPT_SUBST
+autoload -U colors && colors
+PROMPT='┌(%F{${HOSTCOLOUR}}${PWD/#$HOME/~}%f) $(git_branch_name)
+└> '
+RPROMPT='$(if_failed)'
+
 
 #------------------------------
 # Window title
