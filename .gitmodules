@@ -53,3 +53,12 @@
 [submodule "vim-plugins/copilot.vim"]
 	path = vim-plugins/copilot.vim
 	url = https://github.com/github/copilot.vim.git
+[submodule "vim-plugins/vim-ai"]
+	path = vim-plugins/vim-ai
+	url = https://github.com/madox2/vim-ai.git
+[submodule "vim-plugins/ShaderHighlight"]
+	path = vim-plugins/ShaderHighlight
+	url = https://github.com/kalvinpearce/ShaderHighlight
+[submodule "vim-plugins/vim-cs"]
+	path = vim-plugins/vim-cs
+	url = https://github.com/jlcrochet/vim-cs.git
