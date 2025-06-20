@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# convert any C: paths from $@ with wslpath
+# and pass them to nvim
+for arg in "$@"; do
+    if [ "${arg:0:2}" = "C:" ]; then
+        arg=$(wslpath "$arg")
+    fi
+    # add to array
+    args+=("$arg")
+done
+
+# run nvim
+nvim "${args[@]}"
