@@ -1,11 +1,11 @@
 set runtimepath+=~/.vim_runtime
 source ~/.fzf/plugin/fzf.vim
 
-" YouCompleteMe, ALE needs vim 8+
-if v:version < 801
-    let g:pathogen_blacklist = ['YouCompleteMe', 'ale']
+" ALE needs vim 8+
+if v:version < 801 && !has('nvim')
+    let g:pathogen_blacklist = ['ale']
 else
-    let g:pathogen_blacklist = ['syntastic', 'YouCompleteMe-legacy']
+    let g:pathogen_blacklist = ['syntastic']
 endif
 call add(g:pathogen_blacklist, 'vim-snipmate')
 call add(g:pathogen_blacklist, 'vim-multiple_cursor')
@@ -38,8 +38,8 @@ catch
 endtry
 
 set t_Co=256
-set background=dark
-colorscheme peaksea
+" set background=dark
+" colorscheme peaksea
 :imap aa <Esc>
 set foldcolumn=0
 set splitbelow
@@ -60,7 +60,7 @@ endif
 
 let g:autoclose_on = 0
 
-if v:version < 801
+if v:version < 801 && !has('nvim')
     let g:syntastic_always_populate_loc_list = 1
     let g:syntastic_auto_loc_list = 2
     let g:syntastic_check_on_open = 1
@@ -89,7 +89,7 @@ else
 endif
 
 " Show git differences
-let g:gitgutter_enabled = '1'
+" let g:gitgutter_enabled = '1'
 try
 	source ~/co-router-syntastic.vim
 	source ~/co/router/click/etc/click.vim
@@ -107,8 +107,9 @@ if has("gui_running")
     set guifont=Monospace
 endif
 
+
 " WSL yank support - sadly no paste
-let s:clip = '/mnt/c/Windows/System32/clip.exe'  " change this path according to your mount point
+let s:clip = "perl -pe 'chomp if eof' | /mnt/c/Windows/System32/clip.exe"  " change this path according to your mount point
 if executable(s:clip)
     augroup WSLYank
         autocmd!
@@ -137,25 +138,16 @@ endif
 " Column length stuff
 set expandtab!
 let $PAGER=''
+
 let &colorcolumn=join(range(81,999),",")
 autocmd FileType gitcommit let b:tw=72
 autocmd FileType gitcommit let &colorcolumn=join(range(73,999),",") " commit messages are different
 autocmd FileType python let &colorcolumn=join(range(101,999),",") " default syntastic
-" Signcolumn color
-highlight ColorColumn ctermbg=235
-highlight SignColumn ctermbg=235
-highlight! link GitGutterAdd SignColumn
-highlight! link GitGutterChange SignColumn
-highlight! link GitGutterDelete SignColumn
-" pop-up menu
-highlight Pmenu ctermbg=236
-try
-	set signcolumn=yes
-catch
-	autocmd BufEnter * sign define dummy
-	autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
-endtry
-let g:airline_theme='peaksea'
+autocmd FileType cs let g:gitgutter_enabled = '1'
+"
+" let g:airline_theme='peaksea'
+" let g:airline_theme='base16_solarized_dark'
+let g:airline_theme='base16_solarized'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
 let g:ctrlp_user_command = {
@@ -168,7 +160,38 @@ let g:ctrlp_user_command = {
 	\ }
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 
-autocmd BufWritePre * :%s/\s\+$//e
+let g:vim_ai_chat = {
+\  "options": {
+\    "model": "gpt-4",
+\    "temperature": 0.1,
+\    "max_tokens": 0,
+\  },
+\}
+
+let g:vim_ai_complete = {
+\  "options": {
+\    "temperature": 0.1,
+\  },
+\}
+
+let g:vim_ai_edit = {
+\  "options": {
+\    "temperature": 0.1,
+\  },
+\}
+
+" custom command that provides a code review for selected code block
+function! CodeReviewFn(range) range
+  let l:prompt = "programming syntax is " . &filetype . ", review the code below"
+  let l:config = {
+  \  "options": {
+  \    "initial_prompt": ">>> system\nyou are a clean code expert",
+  \  },
+  \}
+  '<,'>call vim_ai#AIChatRun(a:range, l:config, l:prompt)
+endfunction
+command! -range CodeReview <line1>,<line2>call CodeReviewFn(<range>)
+
 set wildmode=longest,list,full
 set wildmenu
 set noerrorbells visualbell t_vb=
@@ -232,6 +255,30 @@ inoremap <silent> <C-k> <Esc>:call PaneNavTmuxTry('U')<CR>
 inoremap <silent> <C-j> <Esc>:call PaneNavTmuxTry('D')<CR>
 inoremap <silent> <C-h> <Esc>:call PaneNavTmuxTry('L')<CR>
 inoremap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
+
+" Colorscheme
+set background=light
+colorscheme solarized
+
+" Signcolumn color
+highlight ColorColumn guibg=NONE
+highlight SignColumn guibg=NONE
+highlight Search guibg=#002b36 guifg=#d33682 " gui=bold
+highlight! link GitGutterAdd SignColumn
+highlight! link GitGutterChange SignColumn
+highlight! link GitGutterDelete SignColumn
+" pop-up menu
+" highlight Pmenu ctermbg=236
+try
+	set signcolumn=yes
+catch
+	autocmd BufEnter * sign define dummy
+	autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+endtry
+
+highlight! link SignColumn ColorColumn
+autocmd ColorScheme * highlight! link SignColumn ColorColumn
+
 " Stuff to remember!
 " :ALEInfo        diagnostic info about why syntax checks might not be working
 " Ctrl+F               to rapid search using the 'ctrlp' fuzzy file/tag searcher

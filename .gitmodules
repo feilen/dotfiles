@@ -28,16 +28,9 @@
 [submodule "vim-plugins/vim-signature"]
 	path = vim-plugins/vim-signature
 	url = https://github.com/kshenoy/vim-signature.git
-[submodule "vim-plugins/YouCompleteMe"]
-	path = vim-plugins/YouCompleteMe
-	url = https://github.com/ycm-core/YouCompleteMe.git
 [submodule "vim-plugins/syntastic"]
 	path = vim-plugins/syntastic
 	url = https://github.com/vim-syntastic/syntastic.git
-[submodule "vim-plugins/YouCompleteMe-legacy"]
-	path = vim-plugins/YouCompleteMe-legacy
-	url = https://github.com/ycm-core/YouCompleteMe.git
-	branch = legacy-vim
 [submodule "zsh-plugins/fzf-zsh-plugin"]
 	path = zsh-plugins/fzf-zsh-plugin
 	url = https://github.com/unixorn/fzf-zsh-plugin.git

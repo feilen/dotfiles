@@ -15,6 +15,10 @@ if which tmux >/dev/null 2>&1; then
     fi
 fi
 
+if [[ "$PWD" == "/mnt/c/Windows/System32" ]]; then
+    cd "$HOME"
+fi
+
 # Fuzzy ^R history search
 export PATH="${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin:${PATH}"
 if which exa bat chafa exiftool >/dev/null; then
@@ -60,6 +64,9 @@ compinit
 # End of lines added by compinstall
 
 . ${HOME}/.profile
+if [ -e ${HOME}/.profile_private ]; then
+    . ${HOME}/.profile_private
+fi
 
 #------------------------------
 # Prompt
@@ -69,10 +76,15 @@ HOSTCOLOUR="$(cat ~/.local/hostcolour)"
 #autoload -U promptinit
 #promptinit
 #prompt adam2 8bit 236 $HOSTCOLOUR $HOSTCOLOUR
+eval `dircolors ~/.local/dotfiles/dircolors.ansi-dark`
 
 function git_branch_name() {
     local branch_name
-    branch_name=$(git symbolic-ref HEAD 2> /dev/null) || return
+    git rev-parse --is-inside-work-tree > /dev/null 2>&1 || return
+    branch_name=$(git describe --all --exact-match HEAD 2> /dev/null | sed 's/.*\///g')
+    if [ "$(git log -1 --pretty=format:%ct $(git merge-base origin/master HEAD))" -lt "$(date -d '2 weeks ago' +%s)" ]; then
+        echo -n "! "
+    fi
     echo \> ${branch_name##refs/heads/}
 }
 
@@ -165,38 +177,45 @@ if [[ "$LAST_ZSH_RUN" != "$(date '+%U')" ]]; then
         echo "gh not installed, won't be able to show github issues"
     fi
     date '+%U' > ~/.local/last_zsh_run
+
+    GIT_CHERRY="$(git cherry HEAD origin/master)"
+    GIT_MODIFIED="$(git status -s | grep '^ [MD]')"
+    if [[ ! -z "$GIT_CHERRY" ]]; then
+        echo "The following changes need to be pulled in:"
+        echo "$GIT_CHERRY"
+    fi
+    if [[ ! -z "$GIT_MODIFIED" ]]; then
+        echo "The following have been changed and need to be merged:"
+        echo "$GIT_MODIFIED"
+    fi
     ) &
 fi
 
 alias chels-issues="gh api -X GET issues -F per_page='100'| jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
 LAST_MOTD="$(cat ~/.local/last_motd)"
 if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
-    if which gh > /dev/null ; then
-        ISSUES_LIST="$(chels-issues)"
-        if [[ ! -z "$ISSUES_LIST" ]]; then
-            echo "Assigned github issues:"
-            PAGER= chels-issues
-        fi
-    fi
-    (
-        if [[ -e "/home/feilen/.ssh/motd-credentials" ]]; then
-            localmotd
-        fi
-
-        if [[ -e "/etc/motd" ]]; then
-            cat /etc/motd
-        fi
-    )
+#    if which gh > /dev/null ; then
+#        ISSUES_LIST="$(chels-issues)"
+#        if [[ ! -z "$ISSUES_LIST" ]]; then
+#            echo "Assigned github issues:"
+#            PAGER= chels-issues
+#        fi
+#    fi
+#    (
+#        if [[ -e "/home/feilen/.ssh/motd-credentials" ]]; then
+#            localmotd
+#        fi
+#
+#        if [[ -e "/etc/motd" ]]; then
+#            cat /etc/motd
+#        fi
+#    )
     # Ensure default git-template exists
     if [ -z "$(git config --path --get init.templatedir)" ]; then
         git config --global init.templatedir '~/.local/dotfiles/git-template'
     fi
     (
     # Sanity/Setup checks
-    if ! ls ${HOME}/.local/dotfiles/vim-plugins/YouCompleteMe*/third_party/ycmd/ycm_core.*so > /dev/null 2>&1; then
-        echo "YouCompleteMe does not seem to be set up. Please go through the install instructions"
-    fi
-
     if ! which exa batcat chafa flake8 cppcheck nvim xclip ctags shellcheck rg > /dev/null ; then
         if ! which rg > /dev/null ; then
             echo "ripgrep does not appear to be installed. vim will use gitgrep"
@@ -216,21 +235,21 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
             echo "nvim does not appear to be installed. Copy will not work"
         fi
         if ! which cppcheck > /dev/null; then
-            echo "cppcheck does nott appear to be installed"
+            echo "cppcheck does not appear to be installed"
         fi
         if ! which batcat > /dev/null; then
-            echo "bat does nott appear to be installed"
+            echo "bat does not appear to be installed"
         fi
         if [[ "$(lsb_release -rs|sed 's/[^0-9]//g')" -gt "2004" ]]; then
             if ! which exa > /dev/null; then
-                echo "exa does nott appear to be installed"
+                echo "exa does not appear to be installed"
             fi
         fi
         if ! which chafa > /dev/null; then
-            echo "chafa does nott appear to be installed"
+            echo "chafa does not appear to be installed"
         fi
         if ! which flake8 > /dev/null; then
-            echo "flake8 does nott appear to be installed"
+            echo "flake8 does not appear to be installed"
         fi
     fi
 
@@ -242,21 +261,6 @@ if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
             echo "Pyflakes not installed for python3"
         fi
     fi
-    ) &
-
-    # if there's changes on master we don't have, notify
-    (
-        cd ~/.local/dotfiles
-        GIT_CHERRY="$(git cherry HEAD origin/master)"
-        GIT_MODIFIED="$(git status -s | grep '^ [MD]')"
-        if [[ ! -z "$GIT_CHERRY" ]]; then
-            echo "The following changes need to be pulled in:"
-            echo "$GIT_CHERRY"
-        fi
-        if [[ ! -z "$GIT_MODIFIED" ]]; then
-            echo "The following have been changed and need to be merged:"
-            echo "$GIT_MODIFIED"
-        fi
     ) &
 
     date '+%j' > ~/.local/last_motd
