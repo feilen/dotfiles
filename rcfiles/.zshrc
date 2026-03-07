@@ -290,5 +290,3 @@ wait
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log
 
 export PATH="${HOME}/.local/dotfiles/local-bin:${PATH}"
-# opencode
-export PATH=/home/feilen/.opencode/bin:$PATH
