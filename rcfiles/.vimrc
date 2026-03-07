@@ -38,8 +38,6 @@ catch
 endtry
 
 set t_Co=256
-" set background=dark
-" colorscheme peaksea
 :imap aa <Esc>
 set foldcolumn=0
 set splitbelow
@@ -146,8 +144,8 @@ autocmd FileType python let &colorcolumn=join(range(101,999),",") " default synt
 autocmd FileType cs let g:gitgutter_enabled = '1'
 "
 " let g:airline_theme='peaksea'
-" let g:airline_theme='base16_solarized_dark'
-let g:airline_theme='base16_solarized'
+let g:airline_theme='base16_solarized_dark'
+" let g:airline_theme='base16_solarized'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
 let g:ctrlp_user_command = {
@@ -257,7 +255,7 @@ inoremap <silent> <C-h> <Esc>:call PaneNavTmuxTry('L')<CR>
 inoremap <silent> <C-l> <Esc>:call PaneNavTmuxTry('R')<CR>
 
 " Colorscheme
-set background=light
+set background=dark
 colorscheme solarized
 
 " Signcolumn color

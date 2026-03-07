@@ -19,3 +19,5 @@ alias asdf='setxkbmap us -variant colemak'
 alias rot13="tr '[A-Za-z]' '[N-ZA-Mn-za-m]'"
 
 export LESS=-R LESS_TERMCAP_me=$(printf '\e[0m') LESS_TERMCAP_se=$(printf '\e[0m') LESS_TERMCAP_ue=$(printf '\e[0m') LESS_TERMCAP_mb=$(printf '\e[1;32m') LESS_TERMCAP_md=$(printf '\e[1;34m') LESS_TERMCAP_us=$(printf '\e[1;32m') LESS_TERMCAP_so=$(printf '\e[1;44;1m')
+export PATH="${HOME}/.local/dotfiles/local-bin:${PATH}"
+. "$HOME/.cargo/env"
