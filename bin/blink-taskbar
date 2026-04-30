@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: blink-taskbar <process-name>" >&2
+    echo "Example: blink-taskbar alacritty" >&2
+    exit 1
+fi
+
+PROCESS_NAME="$1"
+
+powershell.exe -NoProfile -Command '
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class WindowFlash {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct FLASHWINFO {
+        public uint cbSize;
+        public IntPtr hwnd;
+        public uint dwFlags;
+        public uint uCount;
+        public uint dwTimeout;
+    }
+    [DllImport("user32.dll")]
+    public static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
+    public const uint FLASHW_ALL = 3;
+    public const uint FLASHW_TIMERNOFG = 12;
+}
+"@
+$hwnd = (Get-Process "'"$PROCESS_NAME"'" -EA SilentlyContinue | Select-Object -First 1).MainWindowHandle
+if ($hwnd -and $hwnd -ne [IntPtr]::Zero) {
+    $fi = New-Object WindowFlash+FLASHWINFO
+    $fi.cbSize = [System.Runtime.InteropServices.Marshal]::SizeOf($fi)
+    $fi.hwnd = $hwnd
+    $fi.dwFlags = [WindowFlash]::FLASHW_ALL -bor [WindowFlash]::FLASHW_TIMERNOFG
+    $fi.uCount = [uint32]::MaxValue
+    [WindowFlash]::FlashWindowEx([ref]$fi) | Out-Null
+}
+'
