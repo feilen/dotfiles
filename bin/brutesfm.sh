@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 MP4FILE="$1"
 BASENAME="$(basename -s .mp4 -s .mkv -s webm -s .MOV "${MP4FILE}")"
 FILENAME="$(basename "${MP4FILE}")"

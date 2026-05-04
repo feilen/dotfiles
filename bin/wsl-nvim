@@ -1,14 +1,25 @@
-#!/bin/bash
+#!/bin/sh
 
 # convert any C: paths from $@ with wslpath
 # and pass them to nvim
+args=""
 for arg in "$@"; do
-    if [ "${arg:0:2}" = "C:" ]; then
-        arg=$(wslpath "$arg")
+    case "$arg" in
+        [A-Z]:*)
+            arg=$(wslpath "$arg")
+            ;;
+    esac
+    if [ -z "$args" ]; then
+        args="$arg"
+    else
+        args="$args
+$arg"
     fi
-    # add to array
-    args+=("$arg")
 done
 
-# run nvim
-nvim "${args[@]}"
+# run nvim with args (handles spaces in filenames via newline-separated list)
+if [ -n "$args" ]; then
+    echo "$args" | xargs -d '\n' nvim
+else
+    nvim
+fi

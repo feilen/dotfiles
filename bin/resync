@@ -1,84 +1,87 @@
-#!/bin/bash
+#!/bin/sh
 ##########################################
 #     Personal syncronization script.    #
 ##########################################
 
 SYNCOUTPUTDIR=/hdd/feilen/Backups
-GAMEFILES=( '.Aquaria/' \
-'.BlocksThatMatterUserDatas/' \
-'.codered/' \
-'.CrayonPhysicsDeluxe/' \
-'.darwinia/' \
-'.dolphin-emu/' \
-'.frictionalgames/' \
-'.gaijin_games/' \
-'.gish/' \
-'.killingfloor/' \
-'.minecraft/' \
-'.nexuiz/' \
-'.nightsky-game/' \
-'.polynomial/' \
-'.SupergiantGames/' \
-'.xonotic/' )
 
-PERSONALFILES=( '.android/' \
-'.audacity-data/' \
-'.avidemux/' \
-'.bash_logout' \
-'.bash_profile' \
-'.bashrc' \
-'.blender/' \
-'.compose-cache/' \
-'.config/' \
-'.dbus/' \
-'.eclipse/' \
-'.esd_auth' \
-'.fltk/' \
-'.gitconfig' \
-'.gnupg/' \
-'.gstreamer-0.10/' \
-'.icons/' \
-'.irssi/' \
-'.java/' \
-'.kderc' \
-'.libreoffice/' \
-'.local/ --exclude=.local/share/Steam' \
-'.mplayer/' \
-'.mypaint/' \
-'.nanorc' \
-'.nv/' \
-'.nvidia-settings-rc' \
-'.purple/' \
-'.python-eggs/' \
-'.replicatorg/' \
-'.ssh/' \
-'.tor/' \
-'.vidalia/' \
-'.xchat2/' \
-'.xinitrc' \
-'.intel-licence.lic' )
+GAMEFILES='.Aquaria/
+.BlocksThatMatterUserDatas/
+.codered/
+.CrayonPhysicsDeluxe/
+.darwinia/
+.dolphin-emu/
+.frictionalgames/
+.gaijin_games/
+.gish/
+.killingfloor/
+.minecraft/
+.nexuiz/
+.nightsky-game/
+.polynomial/
+.SupergiantGames/
+.xonotic/'
+
+PERSONALFILES='.android/
+.audacity-data/
+.avidemux/
+.bash_logout
+.bash_profile
+.bashrc
+.blender/
+.compose-cache/
+.config/
+.dbus/
+.eclipse/
+.esd_auth
+.fltk/
+.gitconfig
+.gnupg/
+.gstreamer-0.10/
+.icons/
+.irssi/
+.java/
+.kderc
+.libreoffice/
+.local/
+.mplayer/
+.mypaint/
+.nanorc
+.nv/
+.nvidia-settings-rc
+.purple/
+.python-eggs/
+.replicatorg/
+.ssh/
+.tor/
+.vidalia/
+.xchat2/
+.xinitrc
+.intel-licence.lic'
 
 case $1 in
 	fast)
-		ROOTDIR=$(echo $2|sed 's/.*\///g')
+		ROOTDIR=$(echo "$2"|sed 's/.*\///g')
 		echo "Please enter a password:"
-		read password
+		read -r password
 		echo "Compressing $ROOTDIR with lzop and encrypting, please wait..."
-		tar -cf - -C $2 .|pv -s $(du -sbc $2|sed '/total$/!d;s/[\ta-z]*//g')| lzop -1 -c -|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/${ROOTDIR}.tar.lzop.aes256
+		tar -cf - -C "$2" .|pv -s "$(du -sbc "$2"|sed '/total$/!d;s/[\ta-z]*//g')"| lzop -1 -c -|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out "${SYNCOUTPUTDIR}/${ROOTDIR}.tar.lzop.aes256"
 		;;
 	small)
-		ROOTDIR=$(echo $2|sed 's/.*\///g')
+		ROOTDIR=$(echo "$2"|sed 's/.*\///g')
 		echo "Please enter a password:"
-		read password
+		read -r password
 		echo "Compressing $ROOTDIR with xz and encrypting, please wait..."
-		tar -cf - -C $2 .|pv -s $(du -sbc $2|sed '/total$/!d;s/[\ta-z]*//g')| xz -9|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/${ROOTDIR}.tar.xz.aes256
+		tar -cf - -C "$2" .|pv -s "$(du -sbc "$2"|sed '/total$/!d;s/[\ta-z]*//g')"| xz -9|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out "${SYNCOUTPUTDIR}/${ROOTDIR}.tar.xz.aes256"
 		;;
 	dotfiles)
 		echo "Please enter a password:"
-		read password
+		read -r password
 		echo "Compressing dotfiles and encrypting, please wait..."
 		bleachbit -c --preset >/dev/null 2>&1
-		tar -cf - -C /home/feilen ${PERSONALFILES[@]} ${GAMEFILES[@]} |xz -9e|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out ${SYNCOUTPUTDIR}/dotfiles.tar.xz.aes256
+		cd /home/feilen || exit 1
+		# shellcheck disable=SC2086
+		tar -cf - $PERSONALFILES $GAMEFILES |xz -9e|openssl enc -aes-256-cbc -salt -pass pass:"${password}" -out "${SYNCOUTPUTDIR}/dotfiles.tar.xz.aes256"
 		;;
 	uplink)
 		echo "Attempting uplink..."
@@ -104,11 +107,11 @@ case $1 in
 				ARGS='-rvz --delete --size-only'
 				;;
 			dotfiles)
-				DATA=( "${PERSONALFILES[@]}" )
+				DATA="$PERSONALFILES"
 				ARGS='-rvz --delete'
 				;;
 			games)
-				DATA=( "${GAMEFILES[@]}" )
+				DATA="$GAMEFILES"
 				ARGS='-rvz --delete'
 				;;
 			source)
@@ -122,12 +125,16 @@ case $1 in
 		esac
 		case $3 in
 			push)
-				for file in "${DATA[@]}"; do
+				echo "$DATA" | while IFS= read -r file; do
+					[ -z "$file" ] && continue
+					# shellcheck disable=SC2086
 					rsync $ARGS /home/feilen/"${file}" "${4}":/home/feilen/"${file}"
 				done
 				;;
 			pull)
-				for file in "${DATA[@]}"; do
+				echo "$DATA" | while IFS= read -r file; do
+					[ -z "$file" ] && continue
+					# shellcheck disable=SC2086
 					rsync $ARGS "${4}":/home/feilen/"${file}" /home/feilen/"${file}"
 				done
 				;;

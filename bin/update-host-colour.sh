@@ -1,14 +1,15 @@
-#!/usr/bin/env bash
+#!/bin/sh
 if [ ! -e ~/.local/tmux_hostcolour.conf ]; then
-	HASH_FROM_HOST=$(hostname | md5sum | awk '{print $1}' | cut -c 1-4 | cat <(echo -n 0x) -)
-	COLOURCODE=$(echo "print(int(${HASH_FROM_HOST} / 312.07 + 20.0))" | python3)
-	echo "Calculated color for host:" $COLOURCODE
-	echo -n "set-option -g status-fg colour" > ~/.local/tmux_hostcolour.conf
+	HASH_FROM_HOST=$(hostname | md5sum | awk '{print $1}' | cut -c 1-4)
+	HASH_FROM_HOST="0x${HASH_FROM_HOST}"
+	COLOURCODE=$(printf "print(int(%s / 312.07 + 20.0))" "$HASH_FROM_HOST" | python3)
+	echo "Calculated color for host:" "$COLOURCODE"
+	printf "set-option -g status-fg colour" > ~/.local/tmux_hostcolour.conf
 	echo "$COLOURCODE" >> ~/.local/tmux_hostcolour.conf
-	echo -n "set-option -g window-status-current-style fg=colour" >> ~/.local/tmux_hostcolour.conf
+	printf "set-option -g window-status-current-style fg=colour" >> ~/.local/tmux_hostcolour.conf
 	echo "$COLOURCODE" >> ~/.local/tmux_hostcolour.conf
-	echo -n "set -g pane-active-border-style fg=colour" >> ~/.local/tmux_hostcolour.conf
+	printf "set -g pane-active-border-style fg=colour" >> ~/.local/tmux_hostcolour.conf
 	echo "$COLOURCODE" >> ~/.local/tmux_hostcolour.conf
 	cat ~/.local/tmux_hostcolour.conf
-	echo -n "$COLOURCODE" > ~/.local/hostcolour
+	printf "%s" "$COLOURCODE" > ~/.local/hostcolour
 fi
