@@ -16,6 +16,21 @@ if (git diff "$against" | grep "^+.*TODO\|^+.*XXX"); then
     exit 1
 fi
 
+if (git diff "$against" | grep "^\+[[:space:]]*//.*Actually\|^\+[[:space:]]*//.*Wait"); then
+    echo "Thinking patterns found in comments, please remove (if redundant) or rephrase (if they still apply)"
+    exit 1
+fi
+
+# Run duplicate-blocks check - use WSL python when in Git Bash
+if [ -n "$MSYSTEM" ] || [ -n "$MINGW_PREFIX" ]; then
+    DUPE_CMD="wsl.exe python3 ~/.local/bin/duplicate-blocks.py"
+else
+    DUPE_CMD="python3 ~/.local/bin/duplicate-blocks.py"
+fi
+if ! $DUPE_CMD; then
+    echo "Try to address the above issues, or use git commit -n if not possible"
+fi
+
 if [ -z "$VIM" ]; then
     # Run unit tests here
     echo "No unit tests setup! Edit .git/hooks/pre-commit to add some tests."

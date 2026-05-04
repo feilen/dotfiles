@@ -10,7 +10,7 @@ if which tmux >/dev/null 2>&1; then
             else
                 exec tmux -2 new-session
             fi
-            exit $?
+            # exit $? 2026-2-25 is this why we exit randomly?
         fi
     fi
 fi
@@ -35,6 +35,78 @@ if which nvim >/dev/null; then
     export EDITOR=nvim
 fi
 source "${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin/fzf-zsh-plugin.plugin.zsh"
+
+__fzf_select_contextual() {
+    setopt localoptions pipefail no_aliases 2> /dev/null
+
+    local lbuf="$1"
+    local search_dir="."
+    local glob_pattern=""
+    local prefix_to_strip=""
+
+    local last_word="${lbuf##* }"
+    [[ "$lbuf" != *" "* ]] && last_word=""
+
+    if [[ -n "$last_word" ]]; then
+        local expanded="${last_word/#\~/$HOME}"
+
+        if [[ -d "$expanded" ]]; then
+            search_dir="$expanded"
+            prefix_to_strip="$last_word"
+            [[ "$prefix_to_strip" != */ ]] && prefix_to_strip="${prefix_to_strip}/"
+        elif [[ "$expanded" == */ && -d "${expanded%/}" ]]; then
+            search_dir="${expanded%/}"
+            prefix_to_strip="$last_word"
+        elif [[ -d "${expanded%/*}" || "$expanded" == */* ]]; then
+            search_dir="${expanded%/*}"
+            [[ -z "$search_dir" || ! -d "$search_dir" ]] && search_dir="/"
+            local partial="${expanded##*/}"
+            glob_pattern="*${partial}*"
+            prefix_to_strip="$last_word"
+        else
+            glob_pattern="*${expanded}*"
+            prefix_to_strip="$last_word"
+        fi
+    fi
+
+    local rg_cmd="rg --files --no-ignore-vcs --hidden"
+    [[ -n "$glob_pattern" ]] && rg_cmd="$rg_cmd --glob '${glob_pattern}'"
+    rg_cmd="$rg_cmd '$search_dir' 2>/dev/null | rg -v '\\.meta$'"
+
+    local item
+    local selected=""
+    FZF_DEFAULT_COMMAND="$rg_cmd" \
+    FZF_DEFAULT_OPTS=$(__fzf_defaults "--reverse --scheme=path" "${FZF_CTRL_T_OPTS-} -m") \
+    FZF_DEFAULT_OPTS_FILE='' $(__fzfcmd) < /dev/tty | while read -r item; do
+        selected="${selected}${(q)item} "
+    done
+
+    if [[ -n "$selected" ]]; then
+        echo "STRIP:${#prefix_to_strip}"
+        echo -n "$selected"
+    fi
+}
+
+fzf-file-widget() {
+    local result="$(__fzf_select_contextual "$LBUFFER")"
+    local ret=$?
+
+    if [[ -n "$result" ]]; then
+        local strip_line="${result%%$'\n'*}"
+        local selected="${result#*$'\n'}"
+        local strip_len="${strip_line#STRIP:}"
+
+        if [[ $strip_len -gt 0 ]]; then
+            LBUFFER="${LBUFFER:0:-$strip_len}${selected}"
+        else
+            LBUFFER="${LBUFFER}${selected}"
+        fi
+    fi
+
+    zle reset-prompt
+    return $ret
+}
+zle -N fzf-file-widget
 bindkey -M emacs '^F' fzf-file-widget
 bindkey -M vicmd '^F' fzf-file-widget
 bindkey -M viins '^F' fzf-file-widget
@@ -80,11 +152,18 @@ eval `dircolors ~/.local/dotfiles/dircolors.ansi-dark`
 
 function git_branch_name() {
     local branch_name
-    git rev-parse --is-inside-work-tree > /dev/null 2>&1 || return
-    branch_name=$(git describe --all --exact-match HEAD 2> /dev/null | sed 's/.*\///g')
-    if [ "$(git log -1 --pretty=format:%ct $(git merge-base origin/master HEAD))" -lt "$(date -d '2 weeks ago' +%s)" ]; then
-        echo -n "! "
+    local inside_tree
+    inside_tree=$(git rev-parse --is-inside-work-tree 2>&1)
+    if [ $? -ne 0 ]; then
+        return
     fi
+    if [[ "$inside_tree" == "false" ]]; then
+        return
+    fi
+    branch_name=$(git describe --all --exact-match HEAD 2> /dev/null | sed 's/.*\///g')
+#    if [ "$(git log -1 --pretty=format:%ct $(git merge-base origin/master HEAD))" -lt "$(date -d '2 weeks ago' +%s)" ]; then
+#        echo -n "! "
+#    fi
     echo \> ${branch_name##refs/heads/}
 }
 
@@ -98,7 +177,17 @@ function if_failed() {
 # Set up the prompt (with git branch name)
 setopt PROMPT_SUBST
 autoload -U colors && colors
-PROMPT='┌(%F{${HOSTCOLOUR}}${PWD/#$HOME/~}%f) $(git_branch_name)
+
+function prompt_path() {
+    local p="${PWD/#$HOME/~}"
+    if [[ "$p" == "/" || "$p" == "~" ]]; then
+        echo "%F{${HOSTCOLOUR}}${p}%f"
+    else
+        echo "%F{4}${p:h}/%f%F{${HOSTCOLOUR}}${p:t}%f"
+    fi
+}
+
+PROMPT='┌($(prompt_path)) $(git_branch_name)
 └> '
 RPROMPT='$(if_failed)'
 
@@ -285,6 +374,24 @@ fi
 if which gh > /dev/null; then
     alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
 fi
+
+ctm() {
+    export NEWFOLDER="$(dd if=/dev/urandom bs=12 count=1 2>/dev/null | base64 -)" OLDPWD="${PWD}"
+    mkdir -p "/tmp/claude/${NEWFOLDER}"
+    cd "/tmp/claude/${NEWFOLDER}"
+    if which claude > /dev/null; then
+        claude --add-dir "/tmp/claude/${NEWFOLDER}" "$1"
+    elif which opencode > /dev/null; then
+        opencode "$1"
+    else
+        echo "neither claude nor opencode found"
+        cd "${OLDPWD}"
+        rm -r "/tmp/claude/${NEWFOLDER}"
+        return 1
+    fi
+    cd "${OLDPWD}"
+    rm -r "/tmp/claude/${NEWFOLDER}"
+}
 
 wait
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx > .Xsession-log

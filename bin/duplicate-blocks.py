@@ -7,11 +7,13 @@ if those blocks already exist elsewhere in the codebase.
 """
 
 import argparse
+import os
 import subprocess
 import sys
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
 
 # Configuration
 MIN_BLOCK_SIZE = 3
@@ -19,6 +21,39 @@ MIN_LINE_LENGTH = 10
 DEEP_MODE = False
 SKIP_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.meta', '.asset', '.prefab',
                    '.unity', '.bin', '.dll', '.exe', '.so', '.dylib', '.pdf'}
+
+def _is_wsl() -> bool:
+    return 'microsoft' in Path('/proc/version').read_text().lower() if Path('/proc/version').exists() else False
+
+def _wsl_path(winpath: str) -> str:
+    """Convert Windows path to WSL path (C:/foo -> /mnt/c/foo)."""
+    if len(winpath) >= 2 and winpath[1] == ':':
+        drive = winpath[0].lower()
+        return f'/mnt/{drive}{winpath[2:].replace(chr(92), "/")}'
+    return winpath
+
+def _setup_git_env() -> dict:
+    """Return env dict with GIT_DIR translated for WSL if needed."""
+    env = os.environ.copy()
+    if not _is_wsl():
+        return env
+
+    gitfile = Path('.git')
+    if gitfile.is_file():
+        content = gitfile.read_text().strip()
+        if content.startswith('gitdir:'):
+            gitdir = content[7:].strip()
+            if len(gitdir) >= 2 and gitdir[1] == ':':
+                env['GIT_DIR'] = _wsl_path(gitdir)
+    return env
+
+_GIT_ENV = None
+def _get_git_env() -> dict:
+    global _GIT_ENV
+    if _GIT_ENV is None:
+        _GIT_ENV = _setup_git_env()
+    return _GIT_ENV
+
 
 # Configurable message shown when duplicates are found
 DUPLICATE_WARNING_MESSAGE = """
@@ -225,7 +260,7 @@ def _parse_file_list(output: str) -> list[str]:
 def get_staged_files() -> list[str]:
     result = subprocess.run(
         ["git", "diff", "--cached", "--name-only", "--diff-filter=AM"],
-        capture_output=True, text=True, check=True
+        capture_output=True, text=True, check=True, env=_get_git_env()
     )
     return _parse_file_list(result.stdout)
 
@@ -233,22 +268,25 @@ def get_staged_files() -> list[str]:
 def get_changed_files_since(base_ref: str) -> list[str]:
     result = subprocess.run(
         ["git", "diff", "--name-only", "--diff-filter=AM", f"{base_ref}...HEAD"],
-        capture_output=True, text=True, check=True
+        capture_output=True, text=True, check=True, env=_get_git_env()
     )
     return _parse_file_list(result.stdout)
 
 
-def get_added_hunks(filepath: str, base_ref: str | None = None) -> list[AddedHunk]:
+def get_added_hunks(filepath: str, base_ref: str | None = None, use_staged: bool = False) -> list[AddedHunk]:
     """
     Parse diff for a file and extract contiguous blocks of added lines.
-    If base_ref is provided, compares base_ref...HEAD. Otherwise uses staged changes.
+    If base_ref is provided, compares base_ref...HEAD (or base_ref vs staged if use_staged=True).
+    Otherwise uses staged changes vs HEAD.
     """
-    if base_ref:
+    if use_staged and base_ref:
+        cmd = ["git", "diff", "--cached", "-U0", base_ref, "--", filepath]
+    elif base_ref:
         cmd = ["git", "diff", "-U0", f"{base_ref}...HEAD", "--", filepath]
     else:
         cmd = ["git", "diff", "--cached", "-U0", filepath]
 
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=_get_git_env())
 
     hunks = []
     current_hunk_lines = []
@@ -302,28 +340,36 @@ def extract_meaningful_lines(hunk: AddedHunk) -> list[tuple[int, str, str]]:
 
 def find_duplicate_blocks(meaningful_lines: list[tuple[int, str, str]], max_gap: int = 3) -> list[tuple[int, int, tuple[str, ...], tuple[str, ...]]]:
     """
-    Find all blocks of MIN_BLOCK_SIZE+ consecutive meaningful lines.
+    Find all blocks of MIN_BLOCK_SIZE consecutive meaningful lines within contiguous runs.
     Returns [(start_idx, end_idx, normalized_content_tuple, original_content_tuple), ...]
+
+    Generates sliding windows of exactly MIN_BLOCK_SIZE lines to find partial matches.
     """
     if len(meaningful_lines) < MIN_BLOCK_SIZE:
         return []
 
     blocks = []
 
+    # First, identify contiguous runs
+    runs = []
     run_start = 0
     for i in range(1, len(meaningful_lines)):
         gap = meaningful_lines[i][0] - meaningful_lines[i-1][0]
         if gap > max_gap:
             if i - run_start >= MIN_BLOCK_SIZE:
-                normalized = tuple(norm for _, norm, _ in meaningful_lines[run_start:i])
-                original = tuple(orig for _, _, orig in meaningful_lines[run_start:i])
-                blocks.append((run_start, i - 1, normalized, original))
+                runs.append((run_start, i))
             run_start = i
 
     if len(meaningful_lines) - run_start >= MIN_BLOCK_SIZE:
-        normalized = tuple(norm for _, norm, _ in meaningful_lines[run_start:])
-        original = tuple(orig for _, _, orig in meaningful_lines[run_start:])
-        blocks.append((run_start, len(meaningful_lines) - 1, normalized, original))
+        runs.append((run_start, len(meaningful_lines)))
+
+    # Generate MIN_BLOCK_SIZE sliding windows within each run
+    for run_start, run_end in runs:
+        for i in range(run_start, run_end - MIN_BLOCK_SIZE + 1):
+            end_idx = i + MIN_BLOCK_SIZE - 1
+            normalized = tuple(norm for _, norm, _ in meaningful_lines[i:i + MIN_BLOCK_SIZE])
+            original = tuple(orig for _, _, orig in meaningful_lines[i:i + MIN_BLOCK_SIZE])
+            blocks.append((i, end_idx, normalized, original))
 
     return blocks
 
@@ -332,7 +378,18 @@ def get_file_contents_from_ref(filepath: str, ref: str = "HEAD") -> list[str] | 
     """Get file contents from a git ref (default HEAD)."""
     result = subprocess.run(
         ["git", "show", f"{ref}:{filepath}"],
-        capture_output=True, text=True
+        capture_output=True, text=True, env=_get_git_env()
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.split('\n')
+
+
+def get_file_contents_staged(filepath: str) -> list[str] | None:
+    """Get file contents from the staging area (index)."""
+    result = subprocess.run(
+        ["git", "show", f":{filepath}"],
+        capture_output=True, text=True, env=_get_git_env()
     )
     if result.returncode != 0:
         return None
@@ -400,43 +457,49 @@ def ranges_overlap(r1: tuple[int, int], r2: tuple[int, int]) -> bool:
 
 def find_duplicates_in_staged() -> list[DuplicateMatch]:
     """Find introduced blocks in staged changes that duplicate existing code."""
-    return find_duplicates_in_diff(staged=True, base_ref=None)
+    return find_duplicates_in_diff(staged=True, base_ref=None, use_staged_contents=False)
 
 
-def find_duplicates_since_base(base_ref: str) -> list[DuplicateMatch]:
+def find_duplicates_since_base(base_ref: str, use_staged: bool = False) -> list[DuplicateMatch]:
     """Find introduced blocks since base_ref that duplicate existing code."""
-    return find_duplicates_in_diff(staged=False, base_ref=base_ref)
+    return find_duplicates_in_diff(staged=False, base_ref=base_ref, use_staged_contents=use_staged)
 
 
-def find_duplicates_in_diff(staged: bool = True, base_ref: str | None = None) -> list[DuplicateMatch]:
+def find_duplicates_in_diff(staged: bool = True, base_ref: str | None = None, use_staged_contents: bool = False) -> list[DuplicateMatch]:
     """
-    Main analysis: find introduced blocks that duplicate existing code.
+    Main analysis: find introduced blocks that duplicate existing code in the same file.
 
     If staged=True, analyzes staged changes (for pre-commit hook).
     If base_ref is provided, analyzes changes between base_ref and HEAD.
+    If use_staged_contents=True, reads file contents from staging area instead of disk.
+
+    Only searches within the same file for duplicates (not the entire codebase).
     """
     if staged:
         changed_files = get_staged_files()
-        compare_ref = "HEAD"
+    elif use_staged_contents:
+        changed_files = get_staged_files()
     else:
         changed_files = get_changed_files_since(base_ref)
-        compare_ref = base_ref
 
     if not changed_files:
         return []
 
-    # Get all tracked files
-    result = subprocess.run(
-        ["git", "ls-files"],
-        capture_output=True, text=True, check=True
-    )
-    all_files = [f for f in result.stdout.strip().split('\n') if f]
-    all_files = [f for f in all_files if not any(f.endswith(ext) for ext in SKIP_EXTENSIONS)]
-
     matches = []
 
     for changed_file in changed_files:
-        hunks = get_added_hunks(changed_file, base_ref=base_ref if not staged else None)
+        if use_staged_contents:
+            hunks = get_added_hunks(changed_file, base_ref=base_ref, use_staged=True)
+            file_lines = get_file_contents_staged(changed_file)
+        elif staged:
+            hunks = get_added_hunks(changed_file, base_ref=None)
+            file_lines = get_file_contents(changed_file)
+        else:
+            hunks = get_added_hunks(changed_file, base_ref=base_ref)
+            file_lines = get_file_contents(changed_file)
+
+        if not file_lines:
+            continue
 
         for hunk in hunks:
             meaningful = extract_meaningful_lines(hunk)
@@ -447,32 +510,20 @@ def find_duplicates_in_diff(staged: bool = True, base_ref: str | None = None) ->
                 introduced_end = meaningful[end_idx][0]
                 introduced_range = (introduced_start, introduced_end)
 
-                # Search all files for this block
-                for compare_file in all_files:
-                    # Get contents from the comparison ref (before our changes)
-                    if compare_file == changed_file:
-                        file_lines = get_file_contents_from_ref(compare_file, compare_ref)
-                    else:
-                        file_lines = get_file_contents(compare_file)
+                existing_matches = find_block_in_lines(block_normalized, file_lines, changed_file)
 
-                    if not file_lines:
+                for existing_start, existing_end in existing_matches:
+                    # Skip if this overlaps with the introduced range
+                    if ranges_overlap(introduced_range, (existing_start, existing_end)):
                         continue
 
-                    existing_matches = find_block_in_lines(block_normalized, file_lines, compare_file)
-
-                    for existing_start, existing_end in existing_matches:
-                        # Skip if this is the same location in the same file
-                        if compare_file == changed_file:
-                            if ranges_overlap(introduced_range, (existing_start, existing_end)):
-                                continue
-
-                        matches.append(DuplicateMatch(
-                            introduced_file=changed_file,
-                            introduced_lines=(introduced_start, introduced_end),
-                            existing_file=compare_file,
-                            existing_lines=(existing_start, existing_end),
-                            content=list(block_original)
-                        ))
+                    matches.append(DuplicateMatch(
+                        introduced_file=changed_file,
+                        introduced_lines=(introduced_start, introduced_end),
+                        existing_file=changed_file,
+                        existing_lines=(existing_start, existing_end),
+                        content=list(block_original)
+                    ))
 
     return dedupe_matches(matches)
 
@@ -630,6 +681,14 @@ def find_duplicates_in_file(filepath: str) -> list[InternalDuplicate]:
     ]
 
 
+@dataclass(frozen=True)
+class _GroupKey:
+    """Key for grouping duplicate matches by introduced location and content."""
+    introduced_file: str
+    introduced_lines: tuple[int, int]
+    content: tuple[str, ...]
+
+
 def print_results(matches: list[DuplicateMatch]):
     if not matches:
         sys.exit(0)
@@ -639,14 +698,21 @@ def print_results(matches: list[DuplicateMatch]):
     print("=" * 70)
     print()
 
-    for m in sorted(matches, key=lambda x: (-len(x.content), x.introduced_file)):
-        print(f"Introduced in {m.introduced_file}:{m.introduced_lines[0]}-{m.introduced_lines[1]}")
-        print(f"  duplicates {m.existing_file}:{m.existing_lines[0]}-{m.existing_lines[1]}")
-        print(f"  ({len(m.content)} lines):")
-        for line in m.content[:4]:
+    grouped: dict[_GroupKey, list[tuple[str, tuple[int, int]]]] = defaultdict(list)
+    for m in matches:
+        key = _GroupKey(m.introduced_file, m.introduced_lines, tuple(m.content))
+        grouped[key].append((m.existing_file, m.existing_lines))
+
+    for key in sorted(grouped.keys(), key=lambda k: (-len(k.content), k.introduced_file)):
+        duplicates = grouped[key]
+        print(f"Introduced in {key.introduced_file}:{key.introduced_lines[0]}-{key.introduced_lines[1]}")
+        for existing_file, existing_lines in duplicates:
+            print(f"  duplicates {existing_file}:{existing_lines[0]}-{existing_lines[1]}")
+        print(f"  ({len(key.content)} lines):")
+        for line in key.content[:4]:
             print(f"    {line[:72]}")
-        if len(m.content) > 4:
-            print(f"    ... ({len(m.content) - 4} more)")
+        if len(key.content) > 4:
+            print(f"    ... ({len(key.content) - 4} more)")
         print()
 
     sys.exit(1)
@@ -699,6 +765,8 @@ def main():
     parser.add_argument("--file", "-f", nargs="+", metavar="FILE",
                         help="Analyze file(s) for internal duplicates (no git required)")
     parser.add_argument("--base", "-b", help="Compare HEAD against a base branch/commit (e.g., origin/master)")
+    parser.add_argument("--staged", "-s", action="store_true",
+                        help="With --base, analyze staged changes instead of committed changes")
     parser.add_argument("--deep", "-d", action="store_true",
                         help="Structural matching: replace identifiers with placeholders to find similar patterns")
     parser.add_argument("--debug-normalize", metavar="FILE",
@@ -726,7 +794,7 @@ def main():
 
     try:
         if args.base:
-            matches = find_duplicates_since_base(args.base)
+            matches = find_duplicates_since_base(args.base, use_staged=args.staged)
         else:
             matches = find_duplicates_in_staged()
         print_results(matches)
