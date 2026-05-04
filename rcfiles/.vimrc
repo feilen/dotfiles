@@ -38,6 +38,7 @@ catch
 endtry
 
 set t_Co=256
+set background=dark
 :imap aa <Esc>
 set foldcolumn=0
 set splitbelow
@@ -87,7 +88,7 @@ else
 endif
 
 " Show git differences
-" let g:gitgutter_enabled = '1'
+let g:gitgutter_enabled = '1'
 try
 	source ~/co-router-syntastic.vim
 	source ~/co/router/click/etc/click.vim
@@ -96,6 +97,8 @@ endtry
 
 " Force the use of hjkl until I'm actually used to it.
 autocmd VimEnter,BufNewFile,BufReadPost * silent! call HardMode()
+autocmd! BufNewFile,BufRead *.hlsl,*.cginc,*.shader,*.compute set ft=glsl
+autocmd! BufNewFile,BufRead *.md set wrap
 set nowrap
 
 " let g:HardMode_level = 'wannabe'
@@ -261,6 +264,10 @@ colorscheme solarized
 " Signcolumn color
 highlight ColorColumn guibg=NONE
 highlight SignColumn guibg=NONE
+highlight DiffAdd ctermbg=black
+highlight DiffDelete ctermbg=black ctermfg=red
+highlight DiffChange ctermbg=NONE
+highlight DiffText ctermbg=black
 highlight Search guibg=#002b36 guifg=#d33682 " gui=bold
 highlight! link GitGutterAdd SignColumn
 highlight! link GitGutterChange SignColumn
