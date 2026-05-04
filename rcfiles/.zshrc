@@ -21,7 +21,7 @@ fi
 
 # Fuzzy ^R history search
 export PATH="${HOME}/.local/dotfiles/zsh-plugins/fzf-zsh-plugin:${PATH}"
-if which exa bat chafa exiftool >/dev/null; then
+if { which eza >/dev/null 2>&1 || which exa >/dev/null 2>&1 } && { which batcat >/dev/null 2>&1 || which bat >/dev/null 2>&1 } && which chafa exiftool >/dev/null 2>&1; then
     export FZF_PREVIEW_ADVANCED=true FZF_PREVIEW_WINDOW="right:50%:nohidden"
 else
     export FZF_PREVIEW_WINDOW="right:50%:nohidden"
@@ -113,7 +113,7 @@ bindkey -M viins '^F' fzf-file-widget
 
 if which /usr/bin/keychain > /dev/null ; then
     /usr/bin/keychain -q --nogui $HOME/.ssh/dev
-    source $HOME/.keychain/CJaggi-sh
+    source $HOME/.keychain/$(hostname)-sh
 fi
 
 # Lines configured by zsh-newuser-install
@@ -196,24 +196,24 @@ RPROMPT='$(if_failed)'
 # Window title
 #------------------------------
 case $TERM in
-    termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term|screen|screen-256color)
+    termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term)
         precmd () {
             print -Pn "\e]0;%~\a"
         }
-    preexec () {
-        print -Pn "\e]0;$1\a"
-    }
-;;
-screen|screen-256color)
-    precmd () {
-        print -Pn "\e]83;title \"$1\"\a"
-        print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
-    }
-preexec () {
-    print -Pn "\e]83;title \"$1\"\a"
-    print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a"
-}
-;;
+        preexec () {
+            print -Pn "\e]0;$1\a"
+        }
+    ;;
+    screen|screen-256color)
+        precmd () {
+            print -Pn "\e]83;title \"$1\"\a"
+            print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a"
+        }
+        preexec () {
+            print -Pn "\e]83;title \"$1\"\a"
+            print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a"
+        }
+    ;;
 esac
 
 # create a zkbd compatible hash;
@@ -243,16 +243,6 @@ key[PageDown]=${terminfo[knp]}
 bindkey  "^[[1;5D"   backward-word
 bindkey  "^[[1;5C"   forward-word
 
-# Finally, make sure the terminal is in application mode, when zle is
-# active. Only then are the values from $terminfo valid.
-function zle-line-init () {
-echoti smkx
-}
-function zle-line-finish () {
-echoti rmkx
-}
-#zle -N zle-line-init
-#zle -N zle-line-finish
 source ${HOME}/.local/dotfiles/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # if we read .local/last_zsh_run and it's a new day, update last_zsh_run and fetch updates to .local/dotfiles
@@ -283,22 +273,6 @@ fi
 alias chels-issues="gh api -X GET issues -F per_page='100'| jq 'map(select(any(.labels[].name; test(\"fixed in dev branch|future release|support pending\"))| not) ) | group_by(.repository.name)[] | {(.[0].repository.name): [.[] | .title  | .[0:75]]}'"
 LAST_MOTD="$(cat ~/.local/last_motd)"
 if [[ "$LAST_MOTD" != "$(date '+%j')" ]]; then
-#    if which gh > /dev/null ; then
-#        ISSUES_LIST="$(chels-issues)"
-#        if [[ ! -z "$ISSUES_LIST" ]]; then
-#            echo "Assigned github issues:"
-#            PAGER= chels-issues
-#        fi
-#    fi
-#    (
-#        if [[ -e "/home/feilen/.ssh/motd-credentials" ]]; then
-#            localmotd
-#        fi
-#
-#        if [[ -e "/etc/motd" ]]; then
-#            cat /etc/motd
-#        fi
-#    )
     # Ensure default git-template exists
     if [ -z "$(git config --path --get init.templatedir)" ]; then
         git config --global init.templatedir '~/.local/dotfiles/git-template'
@@ -360,9 +334,6 @@ fi
 alias ls='ls --color=auto -tr1'
 alias grep='grep --color=auto'
 alias asdf='setxkbmap us -variant colemak'
-alias CSMTFIX='wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v CSMT /t REG_SZ /d "enabled" /f; wine reg add "HKCU\\Software\\Wine\\Direct3D\\" /v StrictDrawOrdering /t REG_SZ /d "disabled" /f'
-alias DWRITEFIX='wine reg add "HKCU\\Software\\Valve\\Steam" /v DWriteEnable /t REG_DWORD /d 00000000'
-alias D3DADFIX='wine reg.exe ADD "HKCU\\Software\\Wine\\Direct3D" /v UseNative /t REG_DWORD /d 1'
 
 alias chels-show-package-files='dpkg -L'
 alias chels-bell="/bin/sh -c \"echo -ne '\x07' && sleep 0.15 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 1 && echo -ne '\x07' && sleep 0.15 && echo -ne '\x07'\" &"
@@ -372,7 +343,7 @@ else
     alias chels-copy='xclip -selection clipboard -i'
 fi
 if which gh > /dev/null; then
-    alias chels-motd="chels-issues; localmotd; [[ -e /etc/motd ]] && cat /etc/motd"
+    alias chels-motd="chels-issues; [[ -e /etc/motd ]] && cat /etc/motd"
 fi
 
 ctm() {

@@ -27,11 +27,6 @@ source ~/.vim_runtime/vimrcs/filetypes.vim
 source ~/.vim_runtime/vimrcs/plugins_config.vim
 
 
-" Avoid breaking airline
-let g:lightline.enable = {
-    \ 'statusline': 0,
-    \ 'tabline': 0
-    \ }
 try
 	source ~/.vim_runtime/my_configs.vim
 catch
@@ -50,50 +45,26 @@ try
 catch
 endtry
 
-:let operatingsystem=system('uname')
-if operatingsystem=~#"^CYGWIN"
-    set clipboard=unnamed
-else
-    set clipboard=unnamedplus
-endif
+set clipboard=unnamedplus
 
 let g:autoclose_on = 0
 
-if v:version < 801 && !has('nvim')
-    let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_loc_list = 2
-    let g:syntastic_check_on_open = 1
-    let g:syntastic_check_on_wq = 0
-
-    " Can always check :SyntasticInfo to see what is available/enabled for a particular file.
-    let g:syntastic_python_checkers = ['pyflakes', 'pylint', 'flake8']
-    let g:syntastic_python_pylint_exe = 'python3 -m pylint'
-    let g:syntastic_python_pyflakes_exe = 'python -m pyflakes'
-    let g:syntastic_cpp_checkers = ['gcc', 'cppcheck']
-    let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
-else
-    " Can always check :ALEInfo to see what is available/enabled for a particular file.
-    let g:ale_linters = {
-    \    'python': ['pyflakes', 'pylint', 'flake8'],
-    \    'cpp': ['gcc', 'cppcheck']
-    \}
-    let g:ale_fixers = {
-    \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-    \    'python': ['isort']
-    \}
-    let g:ale_python_pylint_executable = 'python3 -m pylint'
-    let g:ale_python_pyflakes_executable = 'python3 -m pyflakes'
-    let g:ale_cpp_cc_options = '-std=c++11 -Wall'
-    let g:ale_python_flake8_options = '--ignore=E501,E265,E226,E302'
-endif
+" Can always check :ALEInfo to see what is available/enabled for a particular file.
+let g:ale_linters = {
+\    'python': ['pyflakes', 'pylint', 'flake8'],
+\    'cpp': ['gcc', 'cppcheck']
+\}
+let g:ale_fixers = {
+\    '*': ['remove_trailing_lines', 'trim_whitespace'],
+\    'python': ['isort']
+\}
+let g:ale_python_pylint_executable = 'python3 -m pylint'
+let g:ale_python_pyflakes_executable = 'python3 -m pyflakes'
+let g:ale_cpp_cc_options = '-std=c++11 -Wall'
+let g:ale_python_flake8_options = '--ignore=E501,E265,E226,E302'
 
 " Show git differences
 let g:gitgutter_enabled = '1'
-try
-	source ~/co-router-syntastic.vim
-	source ~/co/router/click/etc/click.vim
-catch
-endtry
 
 " Force the use of hjkl until I'm actually used to it.
 autocmd VimEnter,BufNewFile,BufReadPost * silent! call HardMode()
@@ -146,19 +117,9 @@ autocmd FileType gitcommit let &colorcolumn=join(range(73,999),",") " commit mes
 autocmd FileType python let &colorcolumn=join(range(101,999),",") " default syntastic
 autocmd FileType cs let g:gitgutter_enabled = '1'
 "
-" let g:airline_theme='peaksea'
 let g:airline_theme='base16_solarized_dark'
-" let g:airline_theme='base16_solarized'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#hunks#enabled=0
-let g:ctrlp_user_command = {
-	\ 'types': {
-                \ 1: ['yocto', 'cd %s && git ls-files -co --exclude-standard|grep -v "^build\|^linux\|^yocto/build\|^testbed\|^wlan\|^wired\|^vivotek"'],
-		\ 2: ['.git', 'cd %s && git ls-files'],
-		\ 3: ['.hg', 'hg --cwd %s locate -I .'],
-		\ },
-	\ 'fallback': 'find %s -type f'
-	\ }
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 
 let g:vim_ai_chat = {
@@ -200,10 +161,6 @@ if has('autocmd')
       autocmd GUIEnter * set visualbell t_vb=
 endif
 
-" autocmd WinEnter * vertical resize 82
-" autocmd FileType qf nnoremap <buffer> <CR> *@:silent call HandleEnterQuickfix(line("."))
-
-" map <C-r> :CtrlPMRU<CR>
 if !executable('fzf')
     noremap <C-f> :CtrlPMixed<CR>
     map <C-b> :CtrlPBuffer<CR>
