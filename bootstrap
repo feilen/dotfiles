@@ -47,4 +47,59 @@ echo "set runtimepath^=~/.vim runtimepath+=~/.vim/after" >> ~/.config/nvim/init.
 echo "let &packpath=&runtimepath" >> ~/.config/nvim/init.vim
 echo "source ~/.vimrc" >> ~/.config/nvim/init.vim
 
+echo "Symlinking agentic..."
+mkdir -p ~/.claude ~/.config/opencode
+# Claude Code
+for file in $(find "${DOTFILES}/agentic/claude" -mindepth 1 -maxdepth 1); do
+	BASENAME=$(basename ${file})
+	if [ -e "${HOME}/.claude/${BASENAME}" ]; then
+		echo "    ${BASENAME} already exists! Not doing anything."
+		echo "    To fix this, backup your file and run: "
+		echo "    ln -sT ${file} ${HOME}/.claude/${BASENAME}"
+	else
+		echo "    Linking in ${BASENAME}..."
+		ln -sT "${file}" "${HOME}/.claude/${BASENAME}"
+	fi
+	echo
+done
+
+# OpenCode
+for file in $(find "${DOTFILES}/agentic/opencode" -mindepth 1 -maxdepth 1); do
+	BASENAME=$(basename ${file})
+	if [ -e "${HOME}/.config/opencode/${BASENAME}" ]; then
+		echo "    ${BASENAME} already exists! Not doing anything."
+		echo "    To fix this, backup your file and run: "
+		echo "    ln -sT ${file} ${HOME}/.config/opencode/${BASENAME}"
+	else
+		echo "    Linking in ${BASENAME}..."
+		ln -sT "${file}" "${HOME}/.config/opencode/${BASENAME}"
+	fi
+	echo
+done
+
+# Shared stuff
+for file in $(find "${DOTFILES}/agentic/shared" -mindepth 1 -maxdepth 1); do
+	BASENAME=$(basename ${file})
+	if [ -e "${HOME}/.config/opencode/${BASENAME}" ]; then
+		echo "    ${BASENAME} already exists! Not doing anything."
+		echo "    To fix this, backup your file and run: "
+		echo "    ln -sT ${file} ${HOME}/.config/opencode/${BASENAME}"
+	else
+		echo "    Linking in ${BASENAME}..."
+		ln -sT "${file}" "${HOME}/.config/opencode/${BASENAME}"
+	fi
+	echo
+	if [ -e "${HOME}/.claude/${BASENAME}" ]; then
+		echo "    ${BASENAME} already exists! Not doing anything."
+		echo "    To fix this, backup your file and run: "
+		echo "    ln -sT ${file} ${HOME}/.claude/${BASENAME}"
+	else
+		echo "    Linking in ${BASENAME}..."
+		ln -sT "${file}" "${HOME}/.claude/${BASENAME}"
+	fi
+	echo
+done
+
+
 echo "All done! Relog to see changes."
+

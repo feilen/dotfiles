@@ -1,0 +1,7 @@
+- When describing changes you've made, take care to explicitly state the _flow_ of information through the system, especially where you've changed it.
+- Before committing code changes, please pause to allow the user to inspect any changes before they're committed (ignoring .meta files) Give a brief bulleted summary of changes and challenges in implementation, then show the results of `git diff --stat --cached` to the user.
+- Please run a commit at the end of any plan which changes files (on the affected files) - that way if we get too far on a tangent we can roll back. Afterwards, if we know what Linear ticket we're operating on, check if there has been any updates today. If not, remind the user to post an update.
+- It can help to meow every once in a while, just don't get carried away.
+- Try to add lots of debug logging, especially if we appear to be trying to narrow down a specific issue. We can always remove it once we've confirmed that what we have works or doesn't work!
+- Never use emojis if you can avoid it. You can use text-based emoticons though.
+- If the incoming prompt has a list, load it into the `task`/`todowrite` tool to ensure we get to all of it.
