@@ -139,9 +139,9 @@ git diff <base>...HEAD --name-only --diff-filter=A | xargs -I{} ls -la {} 2>/dev
 
 If files > 500KB found: Flag for user review. Suggest git-lfs for large assets.
 
-### 2.4 Vague or non-descriptive function names
+### 2.4 Introduced function names review
 
-Extract newly introduced function names from the diff and flag any that are vague, overly short, or don't describe what the function does.
+Extract ALL newly introduced function names from the diff for reviewer overview, and specifically flag any that are vague, overly short, or don't describe what the function does.
 
 **Extract function names** (for files matching `*.{cs,shader,cginc,cpp,c,rs,h,hpp}`):
 
@@ -160,19 +160,37 @@ git diff <base>...HEAD --unified=0 -- '*.shader' '*.cginc' '*.hlsl' | \
   grep -oE '^\w+\s+\w+' | awk '{print $2}' | sort -u
 ```
 
-**Flag names that are:**
+**Output format: Function overview table**
+
+Present ALL introduced functions in a table for reviewer overview:
+
+```
+### Introduced Functions
+
+| File:Line | Name | Purpose | Status |
+|-----------|------|---------|--------|
+| `Foo.cs:42` | `LoadAndPrepareBuffer` | Initializes the execution buffer with default values | OK |
+| `Foo.cs:87` | `Process` | Handles incoming network messages | FLAG: vague - suggest `ProcessNetworkMessages` |
+| `Bar.cs:23` | `TryGetEntrypoint` | Attempts to resolve entrypoint from hash lookup | OK |
+| `Baz.cs:15` | `Helper` | Validates user input before submission | FLAG: vague - suggest `ValidateUserInput` |
+```
+
+For the "Purpose" column: Read the function body to determine what it actually does and summarize in one short phrase.
+
+**Flag names (set Status to FLAG) that are:**
 - Single words that don't describe action (e.g., `Process`, `Handle`, `Do`, `Run`, `Execute`, `Helper`)
 - Numbered or sequential names (e.g., `Step1`, `Part2`, `FirstSteps`)
 - Abbreviations without context (e.g., `Proc`, `Mgr`, `Impl`)
 - Generic names (e.g., `DoIt`, `DoStuff`, `HandleThis`, `ProcessData`)
 
-**Skip (don't flag):**
+**Mark as OK (don't flag):**
 - Unity/framework lifecycle methods: `Awake`, `Start`, `Update`, `FixedUpdate`, `LateUpdate`, `OnEnable`, `OnDisable`, `OnDestroy`, etc.
 - Interface implementations and overrides (detected by `override` keyword)
 - Standard patterns: `Get*`, `Set*`, `Is*`, `Has*`, `Try*`, `On*` (event handlers)
 - Shader entry points: `vert`, `frag`, `surf`
+- Descriptive names that clearly state the action and target
 
-**Good examples** (descriptive, action-oriented):
+**Good examples** (mark OK):
 | Name | Why it's good |
 |------|---------------|
 | `LoadAndPrepareExecutionBuffer` | States the action and the target |
@@ -184,7 +202,7 @@ git diff <base>...HEAD --unified=0 -- '*.shader' '*.cginc' '*.hlsl' | \
 | `SendCustomEventDelayedFrames` | Action + timing qualifier |
 | `vertFog` / `vertTriplanar` | Shader convention + variant qualifier |
 
-**Bad examples** (flag these):
+**Bad examples** (mark FLAG with suggestion):
 | Name | Problem | Suggested fix |
 |------|---------|---------------|
 | `Process` | No object, no context | `ProcessIncomingMessages` |
@@ -196,7 +214,7 @@ git diff <base>...HEAD --unified=0 -- '*.shader' '*.cginc' '*.hlsl' | \
 | `Mgr` | Abbreviation without context | `ConnectionManager.Connect` |
 | `Data` | Noun only, no verb | `TransformVertexData` |
 
-If vague names found: Flag for user review with suggested improvements based on the function body.
+The function overview table provides a quick reviewer scan of all new API surface, while FLAG entries highlight specific naming issues that need attention.
 
 ---
 
@@ -364,6 +382,14 @@ After all auto-fixes are applied:
 
 ```
 ## Final Touches Summary
+
+### Introduced Functions
+
+| File:Line | Name | Purpose | Status |
+|-----------|------|---------|--------|
+| `Foo.cs:42` | `LoadAndPrepareBuffer` | Initializes the execution buffer with default values | OK |
+| `Foo.cs:87` | `Process` | Handles incoming network messages | FLAG: vague - suggest `ProcessNetworkMessages` |
+| `Bar.cs:23` | `TryGetEntrypoint` | Attempts to resolve entrypoint from hash lookup | OK |
 
 ### Auto-fixed:
 - Removed 3 unused imports in `Foo.cs`

@@ -7,6 +7,8 @@ disable-model-invocation: true
 
 Address open PR review feedback for the current branch. This skill focuses on making small, obvious fixes rather than large refactors.
 
+**IMPORTANT:** This skill MUST use the Task tools (`TaskCreate`, `TaskUpdate`) to track progress. Each piece of review feedback becomes a separate task.
+
 ## Steps
 
 1. **Get current branch and PR info:**
@@ -24,12 +26,18 @@ Address open PR review feedback for the current branch. This skill focuses on ma
      - NOT outdated (`isOutdated: false`)
      - Created within the last 2-3 days
 
-4. **Address each comment:**
-   For each qualifying comment:
+4. **Create tasks for each feedback item:**
+   Use `TaskCreate` to create a separate task for each qualifying review comment. The task name should summarize the feedback (e.g., "Rename variable `foo` to `bar` in utils.py"). Include in the task description:
+   - The file and line number
+   - The reviewer's comment
+   - Whether the fix appears simple or complex
+
+5. **Address each task:**
+   Work through tasks one at a time. For each task:
    - Read the file and understand the context
    - Determine if the fix is simple (1-2 lines, obvious change)
-   - If YES: make the minimal change to address the feedback
-   - If NO: skip it and note it for the summary
+   - If YES: make the minimal change to address the feedback, then mark the task as completed via `TaskUpdate`
+   - If NO: mark the task as skipped via `TaskUpdate` with a note explaining why
 
    **Guidelines for "simple" changes:**
    - Renaming a variable or function
@@ -50,15 +58,16 @@ Address open PR review feedback for the current branch. This skill focuses on ma
    - Changes spanning multiple files that require *judgment* per file (not mechanical find-and-replace)
    - Anything requiring significant testing
 
-5. **Verify changes compile:**
+6. **Verify changes compile:**
    - Run setup, linters or unit tests to ensure the codebase still compiles
 
-6. **Commit immediately:**
+7. **Commit immediately:**
    - Stage only the changed files
    - Commit with a short message of which reviews were addressed
    - Instead of showing actual changes, open a tmux split with `git diff --stat HEAD~1 HEAD` after committing.
 
-7. **Report summary:**
-   - List which feedback items were addressed
-   - List which feedback items were skipped (and why)
+8. **Report summary:**
+   - Use `TaskList` to show final status of all tasks
+   - List which feedback items were addressed (completed tasks)
+   - List which feedback items were skipped and why (skipped tasks)
    - Note if there were any compilation issues
